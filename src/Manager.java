@@ -5,14 +5,14 @@ public class Manager {
     private HashMap<Integer, Task> listTask = new HashMap<>();
     private HashMap<Integer, Subtask> listSubtask = new HashMap<>();
     private HashMap<Integer, Epic> listEpic = new HashMap<>();
-    private int id = 0;
-    private final  Scanner scanner = new Scanner(System.in);
+    private int id;
+    private final Scanner scanner = new Scanner(System.in);
 
     public int getId() {
         return id;
     }
 
-    public void setID() {
+    public void setId() {
         id++;
     }
 
@@ -44,7 +44,7 @@ public class Manager {
         if (listEpic.get(Integer.parseInt(id)) == null) {
             System.out.println("Подзадачи отсутствуют.");
         } else {
-            System.out.println(listEpic.get(Integer.parseInt(id)).subtasksEpic);
+            System.out.println(listEpic.get(Integer.parseInt(id)).getSubtasksEpic());
         }
     }
 
@@ -141,7 +141,9 @@ public class Manager {
                 createEpics();
                 break;
             case "3":
-                createSubtask();
+                System.out.println("Введите ID эпика для создания подзадачи:");
+                int id = Integer.parseInt(scanner.nextLine().trim());
+                createSubtask(id);
                 break;
         }
     }
@@ -151,19 +153,24 @@ public class Manager {
         String name = scanner.nextLine().trim();
         System.out.println("Введите описание задачи:");
         String description = scanner.nextLine().trim();
-        setID();
+        setId();
         listTask.put(getId(), new Task(name, description, getId(), "NEW"));
     }
 
+    private Subtask createSubtask(int connect) {
+        if (checkEpic(id)) {
+            System.out.println("Введите имя подзадачи:");
+            String name = scanner.nextLine().trim();
+            System.out.println("Введите описание подзадачи:");
+            String description = scanner.nextLine().trim();
+            setId();
+            listSubtask.put(getId(), new Subtask(name, description, getId(), "NEW", connect));
+            return listSubtask.get(getId());
+        } else {
+            System.out.println("Такого эпика не существует.");
+            return null;
+        }
 
-    private Subtask createSubtask() {
-        System.out.println("Введите имя подзадачи:");
-        String name = scanner.nextLine().trim();
-        System.out.println("Введите описание подзадачи:");
-        String description = scanner.nextLine().trim();
-        setID();
-        listSubtask.put(getId(), new Subtask(name, description, getId(), "NEW"));
-        return listSubtask.get(getId());
     }
 
     public void createEpics() {
@@ -178,8 +185,8 @@ public class Manager {
                 String numberSubtask = scanner.nextLine().trim();
 
                 for (int i = 0; i < Integer.parseInt(numberSubtask); i++) {
-                    epic.subtasksEpic.put(getId() + 1, createSubtask());
-                    epic.subtasksEpic.get(getId()).setConnectionWithEpic(epic.identificationNumber);
+                    epic.getSubtasksEpic().put(getId() + 1, createSubtask(epic.identificationNumber));
+                    epic.getSubtasksEpic().get(getId()).setConnectionWithEpic(epic.identificationNumber);
                     listSubtask.get(getId()).setEpic(true);
                 }
                 listEpic.get(getId() - Integer.parseInt(numberSubtask)).setSubtask(true);
@@ -199,7 +206,7 @@ public class Manager {
         String name = scanner.nextLine().trim();
         System.out.println("Введите описание эпика:");
         String description = scanner.nextLine().trim();
-        setID();
+        setId();
         listEpic.put(getId(), new Epic(name, description, getId(), "NEW"));
         return listEpic.get(getId());
     }
@@ -251,7 +258,7 @@ public class Manager {
     private void deleteSubtask(int id) {
         if (listSubtask.get(id) != null) {
             for (Epic epic : listEpic.values()) {
-                epic.subtasksEpic.remove(id);
+                epic.getSubtasksEpic().remove(id);
                 updateEpic(epic);
             }
             listSubtask.remove(id);
@@ -308,14 +315,13 @@ public class Manager {
                 case "7":
                     printSubtaskEpic();
                     break;
+                case "8":
+                    scanner.close();
+                    return;
                 default:
-                    if (choice.equals("8")) {
-                        break;
-                    } else {
-                        System.out.println("Такой команды нет. Введите заново.");
-                    }
+                    System.out.println("Такой команды нет. Введите заново.");
             }
-        } while (!choice.equals("8"));
+        } while (true);
     }
 
     private void printMenu() {
@@ -331,6 +337,7 @@ public class Manager {
     }
 
     private void updateTask(Task task) {
+
         if (listTask.containsKey(task.identificationNumber)) {  //получаем новый объект Task и проверяем в списке
             System.out.println("Такая задача существует. Обновляем данные"); //есть совпадение
             listTask.put(task.identificationNumber, task); // обновляем его в списке задач
@@ -354,44 +361,58 @@ public class Manager {
 
     private void updateEpicWhitSubtask(Subtask subtask) {
         for (Epic epic : listEpic.values()) { //проходим по списку всех Эпиков
-            if (epic.subtasksEpic.containsKey(subtask.identificationNumber)) { //находим нужный
+            if (epic.getSubtasksEpic().containsKey(subtask.identificationNumber)) { //находим нужный
                 System.out.println("Подзадача найдена. Обновляем объект.");
-                epic.subtasksEpic.put(subtask.identificationNumber, subtask); //и заменяем на новый Subtask
+                epic.getSubtasksEpic().put(subtask.identificationNumber, subtask); //и заменяем на новый Subtask
             }
             updateEpic(epic); //проверяем после этого состояние Эпика
         }
     }
 
     private void updateEpic(Epic epic) {
-        if (listEpic.containsKey(epic.identificationNumber) && !epic.isSubtask()) { //обновление эпика не имеющего подзадач
-            System.out.println("Такой эпик существует. Обновляем данные");
-            listEpic.put(epic.identificationNumber, epic); // обновляем Эпик
-            System.out.println("Эпик без подзадач обновлен.");
-        } else if (epic.isSubtask()) { //обновление эпика с подзадачами
-            int countDone = 0;
-            int countNew = 0;
+        if (checkEpic(epic.identificationNumber)) {
+            if (listEpic.containsKey(epic.identificationNumber) && !epic.isSubtask()) { //обновление эпика не имеющего подзадач
+                System.out.println("Такой эпик существует. Обновляем данные");
+                listEpic.put(epic.identificationNumber, epic); // обновляем Эпик
+                System.out.println("Эпик без подзадач обновлен.");
+            } else if (epic.isSubtask()) { //обновление эпика с подзадачами
+                int countDone = 0;
+                int countNew = 0;
 
-            for (Subtask subtask : epic.subtasksEpic.values()) {
-                if (subtask.status.equals("DONE")) {
-                    countDone++;
+                for (Subtask subtask : epic.getSubtasksEpic().values()) {
+                    if (subtask.status.equals("DONE")) {
+                        countDone++;
+                    }
+                    if (subtask.status.equals("NEW")) {
+                        countNew++;
+                    }
                 }
-                if (subtask.status.equals("NEW")) {
-                    countNew++;
+                listEpic.put(epic.identificationNumber, epic); // эпик обновлен
+                if (countDone == epic.getSubtasksEpic().size()) {
+                    epic.status = "DONE";
+                } else if (countNew == epic.getSubtasksEpic().size()) {
+                    epic.status = "NEW";
+                } else {
+                    epic.status = "IN_PROGRESS";
                 }
-            }
-            epic.subtasksEpic = listEpic.get(epic.identificationNumber).subtasksEpic;//передаем подзадачи новому Эпик
-            listEpic.put(epic.identificationNumber, epic); // эпик обновлен
-            if (countDone == epic.subtasksEpic.size()) {
-                epic.status = "DONE";
-            } else if (countNew == epic.subtasksEpic.size()) {
-                epic.status = "NEW";
+                System.out.println("Эпик с подзадачами обновлен.");
             } else {
-                epic.status = "IN_PROGRESS";
+                System.out.println("Такой эпик не найден.");
             }
-            System.out.println("Эпик с подзадачами обновлен.");
         } else {
-            System.out.println("Такой эпик не найден.");
+            System.out.println("Такой эпик не существует.");
         }
+
+    }
+
+    private boolean checkEpic(int id) {
+        boolean isEpic = false;
+        for (int idT : listEpic.keySet()) {
+            if (idT == id) {
+                isEpic = true;
+            }
+        }
+        return isEpic;
     }
 
 }
