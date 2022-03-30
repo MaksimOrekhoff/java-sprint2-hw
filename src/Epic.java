@@ -3,7 +3,7 @@ import java.util.Objects;
 
 public class Epic extends Task {
     private HashMap<Integer, Subtask> subtasksEpic = new HashMap<>() ;
-    private boolean isSubtask = false;
+    private boolean isSubtask;
     public Epic(String name, String description, int unique_ID, String status) {
         super(name, description, unique_ID, status);
     }
