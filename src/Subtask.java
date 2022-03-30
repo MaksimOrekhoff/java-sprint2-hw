@@ -4,8 +4,9 @@ public class Subtask extends Task {
     private boolean isEpic = false;
     private int connectionWithEpic; // связь с эпиком не у каждого объекта, потому не в конструкторе
 
-    public Subtask(String name, String description, int identificationNumber, String status) {
+    public Subtask(String name, String description, int identificationNumber, String status, int connectionWithEpic) {
         super(name, description, identificationNumber, status);
+        this.connectionWithEpic = connectionWithEpic;
     }
 
     public int getConnectionWithEpic() {
@@ -25,27 +26,28 @@ public class Subtask extends Task {
     }
 
     @Override
+    public String toString() {
+        return "Subtask{" +
+                "isEpic=" + isEpic +
+                ", connectionWithEpic=" + connectionWithEpic +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", identificationNumber=" + identificationNumber +
+                ", status='" + status + '\'' +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Subtask subtask = (Subtask) o;
-        return isEpic == subtask.isEpic;
+        return isEpic == subtask.isEpic && connectionWithEpic == subtask.connectionWithEpic;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), isEpic);
-    }
-
-    @Override
-    public String toString() {
-        return "Subtask{" +
-                "isEpic=" + isEpic +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", unique_ID=" + identificationNumber +
-                ", status='" + status + '\'' +
-                '}';
+        return Objects.hash(super.hashCode(), isEpic, connectionWithEpic);
     }
 }
