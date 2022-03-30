@@ -307,15 +307,12 @@ public class Manager {
                     createTasks();
                     break;
                 case "5":
-                    updateTasks(obj);
-                    break;
-                case "6":
                     deleteTasks();
                     break;
-                case "7":
+                case "6":
                     printSubtaskEpic();
                     break;
-                case "8":
+                case "7":
                     scanner.close();
                     return;
                 default:
@@ -330,10 +327,9 @@ public class Manager {
                 "2 - Удалить все задачи" + '\n' +
                 "3 - Получить задачу по идентификатору." + '\n' +
                 "4 - Создать новый объект." + '\n' +
-                "5 - Обновить данные о задаче." + '\n' +
-                "6 - Удалить задачу." + '\n' +
-                "7 - Посмотреть список подзадач эпика." + '\n' +
-                "8 - Выход.");
+                "5 - Удалить задачу." + '\n' +
+                "6 - Посмотреть список подзадач эпика." + '\n' +
+                "7 - Выход.");
     }
 
     private void updateTask(Task task) {
