@@ -2,9 +2,9 @@ import java.util.Objects;
 
 public class Subtask extends Task {
     private boolean isEpic = false;
-    private int connectionWithEpic; // связь с эпиком не у каждого объекта, потому не в конструкторе
+    private int connectionWithEpic;
 
-    public Subtask(String name, String description, int identificationNumber, String status, int connectionWithEpic) {
+    public Subtask(String name, String description, int identificationNumber, Enum status, int connectionWithEpic) {
         super(name, description, identificationNumber, status);
         this.connectionWithEpic = connectionWithEpic;
     }

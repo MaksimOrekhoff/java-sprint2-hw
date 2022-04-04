@@ -4,8 +4,8 @@ import java.util.Objects;
 public class Epic extends Task {
     private HashMap<Integer, Subtask> subtasksEpic = new HashMap<>() ;
     private boolean isSubtask;
-    public Epic(String name, String description, int unique_ID, String status) {
-        super(name, description, unique_ID, status);
+    public Epic(String name, String description, int identificationNumber, Enum status) {
+        super(name, description, identificationNumber, status);
     }
 
     public HashMap<Integer, Subtask> getSubtasksEpic() {
@@ -23,7 +23,7 @@ public class Epic extends Task {
                 ", isSubtask=" + isSubtask +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", unique_ID=" + identificationNumber +
+                ", identificationNumber=" + identificationNumber +
                 ", status='" + status + '\'' +
                 '}';
     }

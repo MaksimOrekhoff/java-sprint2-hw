@@ -4,9 +4,9 @@ public class Task {
     protected String name;
     protected String description;
     protected int identificationNumber;
-    protected String status;
+    protected Enum status;
 
-    public Task(String name, String description, int identificationNumber, String status) {
+    public Task(String name, String description, int identificationNumber, Enum status) {
         this.name = name;
         this.description = description;
         this.identificationNumber = identificationNumber;
