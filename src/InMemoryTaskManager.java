@@ -1,16 +1,22 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
 public class InMemoryTaskManager implements TaskManager {
-    public HashMap<Integer, Task> listTask = new HashMap<>();
-    public HashMap<Integer, Subtask> listSubtask = new HashMap<>();
-    public HashMap<Integer, Epic> listEpic = new HashMap<>();
+    private HashMap<Integer, Task> listTask = new HashMap<>();
+    private HashMap<Integer, Subtask> listSubtask = new HashMap<>();
+    private HashMap<Integer, Epic> listEpic = new HashMap<>();
     private int id;
     private final Scanner scanner = new Scanner(System.in);
-    private final List<Task> history = new ArrayList<>();
-    private final HistoryManager historyManager = new InMemoryHistoryManager();
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
+
+    public void getHistory() {
+        System.out.println(historyManager.getHistory());
+    }
+
+    public List<Task> getHistoryManager() {
+        return historyManager.getHistory();
+    }
 
     public int getId() {
         return id;
@@ -96,7 +102,17 @@ public class InMemoryTaskManager implements TaskManager {
                 System.out.println("Список задач очищен.");
                 break;
             case "2":
+
                 listEpic.clear();
+                HashMap<Integer, Subtask> newListSubtask = new HashMap<>();
+                for (Subtask subtask : listSubtask.values()) {
+                    if (!subtask.isEpic()) {
+                        newListSubtask.put(subtask.identificationNumber, subtask);
+                    }
+                }
+
+                listSubtask = newListSubtask;
+
                 System.out.println("Список эпиков очищен.");
                 break;
             case "3":
@@ -109,20 +125,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void searchForDeletedSubtasksInEpic() {
         for (Epic epic : listEpic.values()) {
-            if (epic.isSubtask()) listEpic.remove(epic.identificationNumber);
+            if (epic.isSubtask()) epic.getSubtasksEpic().clear();
         }
     }
 
     public Task getTask(int id) {
         for (int idT : listTask.keySet()) {
             if (idT == id) {
-                if (checkSizeHistory()) {
-                    historyManager.add(listTask.get(idT));
-                    history.add(listTask.get(idT));
-                } else {
-                    history.remove(1);
-                    history.add(listTask.get(idT));
-                }
+                historyManager.add(listTask.get(idT));
                 return listTask.get(idT);
             }
         }
@@ -132,12 +142,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Subtask getSubtask(int id) {
         for (int idT : listSubtask.keySet()) {
             if (idT == id) {
-                if (checkSizeHistory()) {
-                    history.add(listSubtask.get(idT));
-                } else {
-                    history.remove(1);
-                    history.add(listSubtask.get(idT));
-                }
+                historyManager.add(listSubtask.get(idT));
                 return listSubtask.get(idT);
             }
         }
@@ -147,25 +152,11 @@ public class InMemoryTaskManager implements TaskManager {
     public Epic getEpic(int id) {
         for (int idT : listEpic.keySet()) {
             if (idT == id) {
-                if (checkSizeHistory()) {
-                    history.add(listEpic.get(idT));
-                } else {
-                    history.remove(1);
-                    history.add(listEpic.get(idT));
-                }
+                historyManager.add(listEpic.get(idT));
                 return listEpic.get(idT);
             }
         }
         return null;
-    }
-
-    public boolean checkSizeHistory() {
-        return history.size() < 10;
-    }
-
-    public void getHistory() {
-        System.out.println(history);
-        System.out.println(historyManager.getHistory());
     }
 
     @Override
@@ -319,7 +310,13 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteEpic(int id) {
         if (listEpic.get(id) != null) {
-
+            HashMap<Integer, Subtask> newListSubtask = new HashMap<>();
+            for (Subtask subtask : listSubtask.values()) {
+                if (!(subtask.getConnectionWithEpic() == id)) {
+                    newListSubtask.put(subtask.identificationNumber, subtask);
+                }
+            }
+            listSubtask = newListSubtask;
             listEpic.remove(id);
         } else {
             System.out.println("Такого эпика нет.");
@@ -330,10 +327,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteSubtask(int id) {
         if (listSubtask.get(id) != null) {
-            for (Epic epic : listEpic.values()) {
-                epic.getSubtasksEpic().remove(id);
-                updateEpic(epic);
-            }
+            listEpic.get(listSubtask.get(id).getConnectionWithEpic()).getSubtasksEpic().remove(id);
+            updateEpic(listEpic.get(listSubtask.get(id).getConnectionWithEpic()));
             listSubtask.remove(id);
         } else {
             System.out.println("Такой подзадачи нет.");
@@ -362,6 +357,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     }
 
+    @Override
     public void mainMenu(Object obj) {
         String choice;
         do {
