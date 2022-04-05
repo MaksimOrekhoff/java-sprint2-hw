@@ -1,5 +1,7 @@
 public interface TaskManager {
 
+    void mainMenu(Object obj);
+
     void printTask();
 
     void printEpic();
