@@ -102,17 +102,8 @@ public class InMemoryTaskManager implements TaskManager {
                 System.out.println("Список задач очищен.");
                 break;
             case "2":
-
                 listEpic.clear();
-                HashMap<Integer, Subtask> newListSubtask = new HashMap<>();
-                for (Subtask subtask : listSubtask.values()) {
-                    if (!subtask.isEpic()) {
-                        newListSubtask.put(subtask.identificationNumber, subtask);
-                    }
-                }
-
-                listSubtask = newListSubtask;
-
+                listSubtask.clear();
                 System.out.println("Список эпиков очищен.");
                 break;
             case "3":
@@ -246,7 +237,6 @@ public class InMemoryTaskManager implements TaskManager {
                 for (int i = 0; i < Integer.parseInt(numberSubtask); i++) {
                     epic.getSubtasksEpic().put(getId() + 1, createSubtask(epic.identificationNumber));
                     epic.getSubtasksEpic().get(getId()).setConnectionWithEpic(epic.identificationNumber);
-                    listSubtask.get(getId()).setEpic(true);
                 }
                 listEpic.get(getId() - Integer.parseInt(numberSubtask)).setSubtask(true);
                 break;
@@ -309,26 +299,23 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteEpic(int id) {
-        if (listEpic.get(id) != null) {
-            HashMap<Integer, Subtask> newListSubtask = new HashMap<>();
-            for (Subtask subtask : listSubtask.values()) {
-                if (!(subtask.getConnectionWithEpic() == id)) {
-                    newListSubtask.put(subtask.identificationNumber, subtask);
-                }
+        Epic epic = listEpic.get(id);
+        if (epic != null) {
+            for (Subtask value : epic.getSubtasksEpic().values()) {
+                listSubtask.remove(value.identificationNumber);
             }
-            listSubtask = newListSubtask;
             listEpic.remove(id);
         } else {
             System.out.println("Такого эпика нет.");
         }
-
     }
 
     @Override
     public void deleteSubtask(int id) {
         if (listSubtask.get(id) != null) {
-            listEpic.get(listSubtask.get(id).getConnectionWithEpic()).getSubtasksEpic().remove(id);
-            updateEpic(listEpic.get(listSubtask.get(id).getConnectionWithEpic()));
+            Epic epic = listEpic.get(listSubtask.get(id).getConnectionWithEpic());
+            epic.getSubtasksEpic().remove(id);
+            updateEpic(epic);
             listSubtask.remove(id);
         } else {
             System.out.println("Такой подзадачи нет.");
@@ -431,9 +418,8 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println(subtask);
         }
 
-        if (subtask.isEpic()) {
-            updateEpicWhitSubtask(subtask);
-        }
+        updateEpicWhitSubtask(subtask);
+
     }
 
     @Override
