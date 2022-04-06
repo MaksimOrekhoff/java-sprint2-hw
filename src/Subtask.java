@@ -20,10 +20,6 @@ public class Subtask extends Task {
     public String toString() {
         return "Subtask{" +
                 "connectionWithEpic=" + connectionWithEpic +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", identificationNumber=" + identificationNumber +
-                ", status=" + status +
                 '}';
     }
 

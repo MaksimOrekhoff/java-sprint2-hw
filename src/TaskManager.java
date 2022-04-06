@@ -42,7 +42,5 @@ public interface TaskManager {
 
     void updateSubtask(Subtask subtask);
 
-    void updateEpicWhitSubtask(Subtask subtask);
-
     void updateEpic(Epic epic);
 }

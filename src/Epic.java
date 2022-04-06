@@ -16,16 +16,20 @@ public class Epic extends Task {
         this.subtasksEpic = subtasksEpic;
     }
 
+    public boolean isSubtask() {
+        return isSubtask;
+    }
+
     @Override
     public String toString() {
         return "Epic{" +
-                "listSubtask=" + subtasksEpic +
+                "subtasksEpic=" + subtasksEpic +
                 ", isSubtask=" + isSubtask +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", identificationNumber=" + identificationNumber +
-                ", status='" + status + '\'' +
                 '}';
+    }
+
+    public void setSubtask(boolean subtask) {
+        isSubtask = subtask;
     }
 
     @Override
@@ -35,14 +39,6 @@ public class Epic extends Task {
         if (!super.equals(o)) return false;
         Epic epic = (Epic) o;
         return isSubtask == epic.isSubtask && Objects.equals(subtasksEpic, epic.subtasksEpic);
-    }
-
-    public boolean isSubtask() {
-        return isSubtask;
-    }
-
-    public void setSubtask(boolean subtask) {
-        isSubtask = subtask;
     }
 
     @Override
