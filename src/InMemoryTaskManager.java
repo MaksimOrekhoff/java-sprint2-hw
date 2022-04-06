@@ -121,7 +121,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public Task getTask(int id) {
-        if (tasks.get(id) != null) {
+        Task task = tasks.get(id);
+        if (task != null) {
             historyManager.add(tasks.get(id));
             return tasks.get(id);
         }
@@ -129,7 +130,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public Subtask getSubtask(int id) {
-        if (subtasks.get(id) != null) {
+        Subtask subtask = subtasks.get(id);
+        if (subtask != null) {
             historyManager.add(subtasks.get(id));
             return subtasks.get(id);
         }
@@ -137,7 +139,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public Epic getEpic(int id) {
-        if (epics.get(id) != null) {
+        Epic epic = epics.get(id);
+        if (epic != null) {
             historyManager.add(epics.get(id));
             return epics.get(id);
         }
@@ -208,6 +211,10 @@ public class InMemoryTaskManager implements TaskManager {
             String description = scanner.nextLine().trim();
             setId();
             subtasks.put(getId(), new Subtask(name, description, getId(), Status.NEW, connect));
+            Epic epic = epics.get(connect);
+            epic.getSubtasksEpic().put(subtasks.get(getId()).getIdentificationNumber(), subtasks.get(getId()));
+            updateEpic(epic);
+
             return subtasks.get(getId());
         } else {
             System.out.println("Такого эпика не существует.");
@@ -230,7 +237,6 @@ public class InMemoryTaskManager implements TaskManager {
 
                 for (int i = 0; i < Integer.parseInt(numberSubtask); i++) {
                     epic.getSubtasksEpic().put(getId() + 1, createSubtask(epic.getIdentificationNumber()));
-                    epic.getSubtasksEpic().get(getId()).setConnectionWithEpic(epic.getIdentificationNumber());
                 }
                 epics.get(getId() - Integer.parseInt(numberSubtask)).setSubtask(true);
                 break;
@@ -238,7 +244,6 @@ public class InMemoryTaskManager implements TaskManager {
             case "2":
                 createEpic();
                 break;
-
             default:
                 System.out.println("Такое действие отсутствует.");
         }
@@ -410,13 +415,8 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Такая подзадача существует. Обновляем данные");
             tasks.put(subtask.getIdentificationNumber(), subtask);
             System.out.println(subtask);
-        }
-
-        for (Epic epic : epics.values()) {
-            if (epic.getSubtasksEpic().containsKey(subtask.getIdentificationNumber())) {
-                System.out.println("Подзадача найдена. Обновляем объект.");
-                epic.getSubtasksEpic().put(subtask.getIdentificationNumber(), subtask);
-            }
+            Epic epic = epics.get(subtask.getConnectionWithEpic());
+            epic.getSubtasksEpic().put(subtask.getIdentificationNumber(), subtask);
             updateEpic(epic);
         }
     }
@@ -459,14 +459,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public boolean checkEpic(int id) {
-        boolean isEpic = false;
-        for (int idT : epics.keySet()) {
-            if (idT == id) {
-                isEpic = true;
-                break;
-            }
-        }
-        return isEpic;
+        return epics.get(id) != null;
     }
 
 }
