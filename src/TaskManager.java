@@ -20,13 +20,19 @@ public interface TaskManager {
 
     void createTasks();
 
-    void createTask();
+    void createTask(int id);
 
-    Subtask createSubtask(int connect);
+    void addTaskInList(Task task);
 
-    void createEpics();
+    void createSubtask(int id);
 
-    Epic createEpic();
+    void addSubtaskInList(Subtask subtask);
+
+    void createEpics(int id);
+
+    void createEpic(int id);
+
+    void addEpicInList(Epic epic);
 
     void deleteTasks();
 

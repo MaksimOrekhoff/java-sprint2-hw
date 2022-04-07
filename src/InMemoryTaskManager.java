@@ -8,7 +8,11 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private int id;
     private final Scanner scanner = new Scanner(System.in);
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    private final HistoryManager historyManager;
+    
+    public InMemoryTaskManager(HistoryManager historyManager) {
+        this.historyManager = historyManager;
+    }
 
     public void getHistory() {
         System.out.println(historyManager.getHistory());
@@ -19,11 +23,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public int getId() {
-        return id;
-    }
-
-    public void setId() {
-        id++;
+        return ++id;
     }
 
     @Override
@@ -116,7 +116,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void searchForDeletedSubtasksInEpic() {
         for (Epic epic : epics.values()) {
-            if (epic.isSubtask()) epic.getSubtasksEpic().clear();
+            if (epic.getSubtasksEpic().size() != 0) epic.getSubtasksEpic().clear();
         }
     }
 
@@ -179,10 +179,10 @@ public class InMemoryTaskManager implements TaskManager {
         String choice = scanner.nextLine().trim();
         switch (choice) {
             case "1":
-                createTask();
+                createTask(getId());
                 break;
             case "2":
-                createEpics();
+                createEpics(getId());
                 break;
             case "3":
                 System.out.println("Введите ID эпика для создания подзадачи:");
@@ -193,56 +193,60 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void createTask() {
+    public void createTask(int id) {
         System.out.println("Введите имя задачи:");
         String name = scanner.nextLine().trim();
         System.out.println("Введите описание задачи:");
         String description = scanner.nextLine().trim();
-        setId();
-        tasks.put(getId(), new Task(name, description, getId(), Status.NEW));
+        addTaskInList(new Task(name, description, id, Status.NEW));
     }
 
     @Override
-    public Subtask createSubtask(int connect) {
-        if (checkEpic(connect)) {
+    public void addTaskInList(Task task) {
+        tasks.put(task.getIdentificationNumber(), task);
+    }
+
+    @Override
+    public void createSubtask(int epicId) {
+        Epic epic = epics.get(epicId);
+        if (epic != null) {
             System.out.println("Введите имя подзадачи:");
             String name = scanner.nextLine().trim();
             System.out.println("Введите описание подзадачи:");
             String description = scanner.nextLine().trim();
-            setId();
-            subtasks.put(getId(), new Subtask(name, description, getId(), Status.NEW, connect));
-            Epic epic = epics.get(connect);
-            epic.getSubtasksEpic().put(subtasks.get(getId()).getIdentificationNumber(), subtasks.get(getId()));
-            updateEpic(epic);
-
-            return subtasks.get(getId());
+            int idSubtask = getId();
+            addSubtaskInList(new Subtask(name, description, idSubtask, Status.NEW, epicId));
+            Subtask subtask = subtasks.get(idSubtask);
+            epic.getSubtasksEpic().put(idSubtask, subtask);
         } else {
             System.out.println("Такого эпика не существует.");
-            return null;
         }
-
     }
 
     @Override
-    public void createEpics() {
+    public void addSubtaskInList(Subtask subtask) {
+        subtasks.put(subtask.getIdentificationNumber(), subtask);
+    }
+
+    @Override
+    public void createEpics(int id) {
         System.out.println("Желаете рабзить на подзадачи?" + '\n' +
                 "1 - Да" + '\n' +
                 "2 - Нет");
         String choice = scanner.nextLine().trim();
         switch (choice) {
             case "1":
-                Epic epic = createEpic();
+                createEpic(id);
                 System.out.println("Введите число подзадач:");
                 String numberSubtask = scanner.nextLine().trim();
 
                 for (int i = 0; i < Integer.parseInt(numberSubtask); i++) {
-                    epic.getSubtasksEpic().put(getId() + 1, createSubtask(epic.getIdentificationNumber()));
+                    createSubtask(id);
                 }
-                epics.get(getId() - Integer.parseInt(numberSubtask)).setSubtask(true);
+                updateEpic(epics.get(id));
                 break;
-
             case "2":
-                createEpic();
+                createEpic(id);
                 break;
             default:
                 System.out.println("Такое действие отсутствует.");
@@ -250,14 +254,17 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic createEpic() {
+    public void createEpic(int id) {
         System.out.println("Введите имя эпика:");
         String name = scanner.nextLine().trim();
         System.out.println("Введите описание эпика:");
         String description = scanner.nextLine().trim();
-        setId();
-        epics.put(getId(), new Epic(name, description, getId(), Status.NEW));
-        return epics.get(getId());
+        addEpicInList(new Epic(name, description, id, Status.NEW));
+    }
+
+    @Override
+    public void addEpicInList(Epic epic) {
+        epics.put(epic.getIdentificationNumber(), epic);
     }
 
     @Override
@@ -399,10 +406,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-
         if (tasks.containsKey(task.getIdentificationNumber())) {
             System.out.println("Такая задача существует. Обновляем данные");
-            tasks.put(task.getIdentificationNumber(), task);
+            addTaskInList(task);
             System.out.println(task);
         } else {
             System.out.println("Такой задачи не существует.");
@@ -413,22 +419,23 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateSubtask(Subtask subtask) {
         if (subtasks.containsKey(subtask.getIdentificationNumber())) {
             System.out.println("Такая подзадача существует. Обновляем данные");
-            tasks.put(subtask.getIdentificationNumber(), subtask);
+            addSubtaskInList(subtask);
             System.out.println(subtask);
             Epic epic = epics.get(subtask.getConnectionWithEpic());
             epic.getSubtasksEpic().put(subtask.getIdentificationNumber(), subtask);
             updateEpic(epic);
+        } else {
+            System.out.println("Такой подзадачи не существует.");
         }
     }
 
     @Override
     public void updateEpic(Epic epic) {
         if (checkEpic(epic.getIdentificationNumber())) {
-            if (epics.containsKey(epic.getIdentificationNumber()) && !epic.isSubtask()) {
-                System.out.println("Такой эпик существует. Обновляем данные");
+            if (epic.getSubtasksEpic() == null) {
                 epics.put(epic.getIdentificationNumber(), epic);
-                System.out.println("Эпик без подзадач обновлен.");
-            } else if (epic.isSubtask()) {
+                System.out.println("Эпик обновлен.");
+            } else if (epic.getSubtasksEpic() != null) {
                 int countDone = 0;
                 int countNew = 0;
 
@@ -440,7 +447,9 @@ public class InMemoryTaskManager implements TaskManager {
                         countNew++;
                     }
                 }
-                epics.put(epic.getIdentificationNumber(), epic);
+
+                addEpicInList(epic);
+
                 if (countDone == epic.getSubtasksEpic().size()) {
                     epic.setStatus(Status.DONE);
                 } else if (countNew == epic.getSubtasksEpic().size()) {
@@ -448,14 +457,11 @@ public class InMemoryTaskManager implements TaskManager {
                 } else {
                     epic.setStatus(Status.IN_PROGRESS);
                 }
-                System.out.println("Эпик с подзадачами обновлен.");
-            } else {
-                System.out.println("Такой эпик не найден.");
+                System.out.println("Эпик обновлен.");
             }
         } else {
             System.out.println("Такой эпик не существует.");
         }
-
     }
 
     public boolean checkEpic(int id) {

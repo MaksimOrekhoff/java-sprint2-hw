@@ -3,7 +3,7 @@ import java.util.Objects;
 
 public class Epic extends Task {
     private HashMap<Integer, Subtask> subtasksEpic = new HashMap<>() ;
-    private boolean isSubtask;
+
     public Epic(String name, String description, int identificationNumber, Enum status) {
         super(name, description, identificationNumber, status);
     }
@@ -16,9 +16,6 @@ public class Epic extends Task {
         this.subtasksEpic = subtasksEpic;
     }
 
-    public boolean isSubtask() {
-        return isSubtask;
-    }
 
     @Override
     public String toString() {
@@ -28,12 +25,7 @@ public class Epic extends Task {
                 ", identificationNumber=" + getIdentificationNumber() +
                 ", status=" + getStatus() +
                 ", subtasksEpic=" + subtasksEpic +
-                ", isSubtask=" + isSubtask +
                 '}';
-    }
-
-    public void setSubtask(boolean subtask) {
-        isSubtask = subtask;
     }
 
     @Override
@@ -42,11 +34,11 @@ public class Epic extends Task {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Epic epic = (Epic) o;
-        return isSubtask == epic.isSubtask && Objects.equals(subtasksEpic, epic.subtasksEpic);
+        return Objects.equals(subtasksEpic, epic.subtasksEpic);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), subtasksEpic, isSubtask);
+        return Objects.hash(super.hashCode(), subtasksEpic);
     }
 }
