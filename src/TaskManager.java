@@ -1,6 +1,6 @@
 public interface TaskManager {
 
-    void mainMenu(Object obj);
+    void mainMenu();
 
     void printTask();
 
@@ -16,7 +16,7 @@ public interface TaskManager {
 
     void searchForDeletedSubtasksInEpic();
 
-    Object getTasks();
+    void getTasks();
 
     void createTasks();
 
@@ -41,8 +41,6 @@ public interface TaskManager {
     void deleteEpic(int id);
 
     void deleteSubtask(int id);
-
-    void updateTasks(Object obj);
 
     void updateTask(Task task);
 
