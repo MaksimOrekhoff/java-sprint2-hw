@@ -9,7 +9,7 @@ public class InMemoryTaskManager implements TaskManager {
     private int id;
     private final Scanner scanner = new Scanner(System.in);
     private final HistoryManager historyManager;
-    
+
     public InMemoryTaskManager(HistoryManager historyManager) {
         this.historyManager = historyManager;
     }
@@ -148,7 +148,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Object getTasks() {
+    public void getTasks() {
         System.out.println("Какой объект вы хотите получить?" + '\n' +
                 "1 - Задача" + '\n' +
                 "2 - Эпик" + '\n' +
@@ -160,13 +160,31 @@ public class InMemoryTaskManager implements TaskManager {
 
         switch (choice) {
             case 1:
-                return getTask(id);
+                Task task = getTask(id);
+                if (task == null) {
+                    System.out.println("Такая задача не найдена");
+                } else {
+                    System.out.println(task);
+                }
+                break;
             case 2:
-                return getEpic(id);
+                Epic epic = getEpic(id);
+                if (epic == null) {
+                    System.out.println("Такая задача не найдена");
+                } else {
+                    System.out.println(epic);
+                }
+                break;
             case 3:
-                return getSubtask(id);
+                Subtask subtask = getSubtask(id);
+                if (subtask == null) {
+                    System.out.println("Такая задача не найдена");
+                } else {
+                    System.out.println(subtask);
+                }
+                break;
             default:
-                return null;
+                System.out.println("Такой команды нет.");
         }
     }
 
@@ -318,8 +336,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteSubtask(int id) {
-        if (subtasks.get(id) != null) {
-            Epic epic = epics.get(subtasks.get(id).getConnectionWithEpic());
+        Subtask subtask = subtasks.get(id);
+        if (subtask != null) {
+            Epic epic = epics.get(subtask.getConnectionWithEpic());
             epic.getSubtasksEpic().remove(id);
             updateEpic(epic);
             subtasks.remove(id);
@@ -329,29 +348,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTasks(Object obj) {
-        System.out.println("Какой объект вы хотите обновить?" + '\n' +
-                "1 - Задача" + '\n' +
-                "2 - Эпик" + '\n' +
-                "3 - Подзадача ");
-
-        String choice = scanner.nextLine().trim();
-        switch (choice) {
-            case "1":
-                updateTask((Task) obj);
-                break;
-            case "2":
-                updateSubtask((Subtask) obj);
-                break;
-            case "3":
-                updateEpic((Epic) obj);
-                break;
-        }
-
-    }
-
-    @Override
-    public void mainMenu(Object obj) {
+    public void mainMenu() {
         String choice;
         do {
             printMenu();
@@ -364,12 +361,7 @@ public class InMemoryTaskManager implements TaskManager {
                     clearAll();
                     break;
                 case "3":
-                    Object object = getTasks();
-                    if (object == null) {
-                        System.out.println("Такая задача не найдена");
-                    } else {
-                        System.out.println(object);
-                    }
+                    getTasks();
                     break;
                 case "4":
                     createTasks();
@@ -432,10 +424,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic epic) {
         if (checkEpic(epic.getIdentificationNumber())) {
-            if (epic.getSubtasksEpic() == null) {
+            if (epic.getSubtasksEpic().size() == 0) {
                 epics.put(epic.getIdentificationNumber(), epic);
                 System.out.println("Эпик обновлен.");
-            } else if (epic.getSubtasksEpic() != null) {
+            } else if (epic.getSubtasksEpic().size() != 0) {
                 int countDone = 0;
                 int countNew = 0;
 
