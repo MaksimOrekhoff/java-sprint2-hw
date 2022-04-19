@@ -314,7 +314,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTask(int id) {
         if (tasks.get(id) != null) {
+            historyManager.remove(id);
             tasks.remove(id);
+
         } else {
             System.out.println("Такой задачи нет.");
         }
@@ -326,8 +328,10 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(id);
         if (epic != null) {
             for (Subtask value : epic.getSubtasksEpic().values()) {
+                historyManager.remove(value.getIdentificationNumber());
                 subtasks.remove(value.getIdentificationNumber());
             }
+            historyManager.remove(id);
             epics.remove(id);
         } else {
             System.out.println("Такого эпика нет.");
@@ -341,6 +345,7 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epics.get(subtask.getConnectionWithEpic());
             epic.getSubtasksEpic().remove(id);
             updateEpic(epic);
+            historyManager.remove(id);
             subtasks.remove(id);
         } else {
             System.out.println("Такой подзадачи нет.");
