@@ -1,3 +1,5 @@
+package model;
+
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -19,7 +21,7 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return "Epic{" +
+        return "model.Epic{" +
                 "name='" + getName() + '\'' +
                 ", description='" + getDescription() + '\'' +
                 ", identificationNumber=" + getIdentificationNumber() +

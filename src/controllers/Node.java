@@ -1,3 +1,7 @@
+package controllers;
+
+import model.Task;
+
 public class Node {
 
     public Task data;

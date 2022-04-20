@@ -1,3 +1,5 @@
+package controllers;
+
 public class Managers {
     private final static InMemoryHistoryManager inMemoryHistoryManager = new InMemoryHistoryManager();
     private final static InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(inMemoryHistoryManager);
