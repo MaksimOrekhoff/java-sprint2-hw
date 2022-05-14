@@ -1,0 +1,11 @@
+id,type,name,status,description,epic
+1,TASK,первая,NEW,ывпа
+2,TASK,вторая,NEW,выап
+3,EPIC,третий,NEW,ывапр
+7,EPIC,седьмой,NEW,фвап
+4,SUBTASK,четвертая,NEW,ывп,3
+5,SUBTASK,пятая,NEW,ывп,3
+6,SUBTASK,шестая,NEW,пвапр,3
+8,SUBTASK,восьмая,NEW,ывп,3
+
+4, 6, 7, 5, 2, 8, 3, 1, 
