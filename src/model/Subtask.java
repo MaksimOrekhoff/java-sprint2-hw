@@ -1,12 +1,14 @@
 package model;
 
+import controllers.TypeTask;
+
 import java.util.Objects;
 
 public class Subtask extends Task {
-    private int connectionWithEpic;
+    private final int connectionWithEpic;
 
     public Subtask(String name, String description, int identificationNumber, Enum status, int connectionWithEpic) {
-        super(name, description, identificationNumber, status);
+        super(name, description, identificationNumber, status, TypeTask.SUBTASK);
         this.connectionWithEpic = connectionWithEpic;
     }
 
@@ -14,18 +16,16 @@ public class Subtask extends Task {
         return connectionWithEpic;
     }
 
-    public void setConnectionWithEpic(int connectionWithEpic) {
-        this.connectionWithEpic = connectionWithEpic;
-    }
-
     @Override
     public String toString() {
         return "model.Subtask{" +
-                "name='" + getName() + '\'' +
-                ", description='" + getDescription() + '\'' +
+                "typeTask=" + getTypeTask() +
+                ", name='" + getName() +
+                ", description='" + getDescription() +
                 ", identificationNumber=" + getIdentificationNumber() +
                 ", status=" + getStatus() +
                 ", connectionWithEpic=" + connectionWithEpic +
+
                 '}';
     }
 

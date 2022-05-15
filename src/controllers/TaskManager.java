@@ -4,6 +4,9 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
+import java.io.File;
+import java.io.IOException;
+
 public interface TaskManager {
 
     void printTask();
@@ -20,11 +23,11 @@ public interface TaskManager {
     void clearSubtask();
     void searchForDeletedSubtasksInEpic();
 
-    Task getTask(int id);
+    Task getTask(int id) throws IOException;
 
-    Subtask getSubtask(int id);
+    Subtask getSubtask(int id) throws IOException;
 
-    Epic getEpic(int id);
+    Epic getEpic(int id) throws IOException;
 
     void createTask(String name, String description);
 
@@ -39,11 +42,11 @@ public interface TaskManager {
     void addEpicInList(Epic epic);
 
 
-    void deleteTask(int id);
+    void deleteTask(int id) throws IOException;
 
-    void deleteEpic(int id);
+    void deleteEpic(int id) throws IOException;
 
-    void deleteSubtask(int id);
+    void deleteSubtask(int id) throws IOException;
 
     void updateTask(Task task);
 
@@ -51,4 +54,6 @@ public interface TaskManager {
 
     void updateEpic(Epic epic);
     void getHistory();
+
+
 }

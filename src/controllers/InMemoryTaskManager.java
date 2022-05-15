@@ -3,14 +3,16 @@ package controllers;
 import model.Epic;
 import model.Subtask;
 import model.Task;
+
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
+    private final HistoryManager historyManager;
+    private int id;
 
     public HashMap<Integer, Task> getTasks() {
         return tasks;
@@ -24,19 +26,23 @@ public class InMemoryTaskManager implements TaskManager {
         return epics;
     }
 
-    private int id;
-    private final Scanner scanner = new Scanner(System.in);
-    private final HistoryManager historyManager;
+    public HistoryManager getHistoryManager() {
+        return historyManager;
+    }
 
     public InMemoryTaskManager(HistoryManager historyManager) {
         this.historyManager = historyManager;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void getHistory() {
         System.out.println(historyManager.getHistory());
     }
 
-    public List<Task> getHistoryManager() {
+    public List<Task> getHistoryManagers() {
         return historyManager.getHistory();
     }
 
@@ -88,8 +94,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearEpic() {
-        epics.clear();
         subtasks.clear();
+        epics.clear();
         System.out.println("Список эпиков очищен.");
     }
 
@@ -137,7 +143,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void createTask(String name, String description) {
-        addTaskInList(new Task(name, description, getId(), Status.NEW));
+        addTaskInList(new Task(name, description, getId(), Status.NEW, TypeTask.TASK));
     }
 
     @Override
@@ -213,8 +219,6 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Такой подзадачи нет.");
         }
     }
-
-
 
     @Override
     public void updateTask(Task task) {

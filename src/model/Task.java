@@ -1,18 +1,23 @@
 package model;
 
+import controllers.TypeTask;
+
 import java.util.Objects;
 
 public class Task {
+
+    private final TypeTask typeTask;
     private final String name;
     private final String description;
     private final int identificationNumber;
     private Enum status;
 
-    public Task(String name, String description, int identificationNumber, Enum status) {
+    public Task(String name, String description, int identificationNumber, Enum status, TypeTask typeTask) {
         this.name = name;
         this.description = description;
         this.identificationNumber = identificationNumber;
         this.status = status;
+        this.typeTask = typeTask;
     }
 
     public String getName() {
@@ -27,6 +32,10 @@ public class Task {
         return status;
     }
 
+    public TypeTask getTypeTask() {
+        return typeTask;
+    }
+
     public void setStatus(Enum status) {
         this.status = status;
     }
@@ -35,12 +44,12 @@ public class Task {
         return identificationNumber;
     }
 
-
     @Override
     public String toString() {
-        return "model.Task{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
+        return "Task{" +
+                "typeTask=" + typeTask +
+                ", name='" + name +
+                ", description='" + description +
                 ", identificationNumber=" + identificationNumber +
                 ", status=" + status +
                 '}';
@@ -51,11 +60,14 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return identificationNumber == task.identificationNumber && Objects.equals(name, task.name) && Objects.equals(description, task.description) && Objects.equals(status, task.status);
+        return identificationNumber == task.identificationNumber && typeTask == task.typeTask && Objects.equals(name, task.name) && Objects.equals(description, task.description) && Objects.equals(status, task.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, identificationNumber, status);
+        return Objects.hash(typeTask, name, description, identificationNumber, status);
     }
 }
+
+
+

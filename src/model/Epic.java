@@ -1,5 +1,7 @@
 package model;
 
+import controllers.TypeTask;
+
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -7,7 +9,8 @@ public class Epic extends Task {
     private HashMap<Integer, Subtask> subtasksEpic = new HashMap<>() ;
 
     public Epic(String name, String description, int identificationNumber, Enum status) {
-        super(name, description, identificationNumber, status);
+        super(name, description, identificationNumber, status, TypeTask.EPIC);
+
     }
 
     public HashMap<Integer, Subtask> getSubtasksEpic() {
@@ -22,8 +25,9 @@ public class Epic extends Task {
     @Override
     public String toString() {
         return "model.Epic{" +
-                "name='" + getName() + '\'' +
-                ", description='" + getDescription() + '\'' +
+                "typeTask=" + getTypeTask() +
+                ", name='" + getName() +
+                ", description='" + getDescription() +
                 ", identificationNumber=" + getIdentificationNumber() +
                 ", status=" + getStatus() +
                 ", subtasksEpic=" + subtasksEpic +
