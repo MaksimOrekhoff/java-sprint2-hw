@@ -13,19 +13,19 @@ public class Managers {
     }
 
     public static TaskManager getDefault() {
-        return inMemoryTaskManager;
+        return new FileBackedTasksManager(inMemoryHistoryManager);
     }
 
-    public static FileBackedTasksManager getDefault1(File file) {
-        return new FileBackedTasksManager(inMemoryHistoryManager, file);
-    }
-
-    public static FileBackedTasksManager getDefault2(File file) {
-        if (!(file.length() == 0)) {
-            return FileBackedTasksManager.loadFromFile(file);
-        } else {
-            return getDefault1(file);
-        }
-    }
+//    public static FileBackedTasksManager getDefault1(File file) {
+//        return new FileBackedTasksManager(inMemoryHistoryManager, file);
+//    }
+//
+//    public static FileBackedTasksManager getDefault2(File file) {
+//        if (!(file.length() == 0)) {
+//            return FileBackedTasksManager.loadFromFile(file);
+//        } else {
+//            return getDefault1(file);
+//        }
+//    }
 
 }
