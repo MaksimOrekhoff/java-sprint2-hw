@@ -9,6 +9,10 @@ public class InMemoryHistoryManager implements HistoryManager {
     private final CustomLinkedList taskCustomLinkedList = new CustomLinkedList();
 
     public void add(Task task) {
+        if (task == null) {
+            System.out.println("Задача не может быть добавлена");
+            return;
+        }
         int idTask = task.getIdentificationNumber();
         if (nodePlace.containsKey(idTask)) {
             remove(idTask);

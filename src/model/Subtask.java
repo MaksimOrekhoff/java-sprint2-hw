@@ -1,16 +1,20 @@
 package model;
 
+import controllers.Status;
 import controllers.TypeTask;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Subtask extends Task {
     private final int connectionWithEpic;
 
-    public Subtask(String name, String description, int identificationNumber, Enum status, int connectionWithEpic) {
-        super(name, description, identificationNumber, status, TypeTask.SUBTASK);
+    public Subtask(String name, String description, int identificationNumber, Enum status, int connectionWithEpic, long duration, LocalDateTime startTime) {
+        super(name, description, identificationNumber, status, TypeTask.SUBTASK, duration, startTime);
         this.connectionWithEpic = connectionWithEpic;
     }
+
+
 
     public int getConnectionWithEpic() {
         return connectionWithEpic;
@@ -25,9 +29,12 @@ public class Subtask extends Task {
                 ", identificationNumber=" + getIdentificationNumber() +
                 ", status=" + getStatus() +
                 ", connectionWithEpic=" + connectionWithEpic +
-
+                ", duration=" + getDuration() +
+                ", startTime=" + getStartTime() +
                 '}';
     }
+
+
 
     @Override
     public boolean equals(Object o) {

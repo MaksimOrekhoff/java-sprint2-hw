@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -25,8 +26,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private void save() {
         try {
-            FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write("id,type,name,status,description,epic" + "\n");
+            FileWriter fileWriter = new FileWriter(file, false);
+            fileWriter.write("id,type,name,status,description,duration,startTime,epic" + "\n");
 
             for (Task task : getTasks().values()) {
                 fileWriter.write(toString(task));
@@ -48,20 +49,20 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void createTask(String name, String description) {
-        super.createTask(name, description);
+    public void createTask(String name, String description, long duration, LocalDateTime localDateTime) throws IllegalAccessException {
+        super.createTask(name, description, duration, localDateTime);
         save();
     }
 
     @Override
-    public void createSubtask(int epicId, String name, String description) {
-        super.createSubtask(epicId, name, description);
+    public void createSubtask(int epicId, String name, String description, long duration, LocalDateTime localDateTime) throws IllegalAccessException {
+        super.createSubtask(epicId, name, description, duration, localDateTime);
         save();
     }
 
     @Override
-    public void createEpic(String name, String description) {
-        super.createEpic(name, description);
+    public void createEpic(String name, String description, long duration, LocalDateTime localDateTime) {
+        super.createEpic(name, description, duration, localDateTime);
         save();
     }
 
@@ -123,13 +124,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws IllegalAccessException {
         super.updateTask(task);
         save();
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) {
+    public void updateSubtask(Subtask subtask) throws IllegalAccessException {
         super.updateSubtask(subtask);
         save();
     }
@@ -143,9 +144,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public String toString(Task task) {
         if (task.getTypeTask() == TypeTask.SUBTASK) {
             Subtask subtask = (Subtask) task;
-            return subtask.getIdentificationNumber() + "," + subtask.getTypeTask() + "," + subtask.getName() + "," + subtask.getStatus() + "," + subtask.getDescription() + "," + subtask.getConnectionWithEpic() + "\n";
+            return subtask.getIdentificationNumber() + "," + subtask.getTypeTask() + ","
+                    + subtask.getName() + "," + subtask.getStatus() + ","
+                    + subtask.getDescription() + "," + subtask.getDuration() + ","
+                    + getLineData(subtask.getLocalDateTime()) + "," + subtask.getConnectionWithEpic() + "\n";
         }
-        return task.getIdentificationNumber() + "," + task.getTypeTask() + "," + task.getName() + "," + task.getStatus() + "," + task.getDescription() + "\n";
+        return task.getIdentificationNumber() + "," + task.getTypeTask() + ","
+                + task.getName() + "," + task.getStatus() + "," + task.getDescription() + ","
+                + task.getDuration() + "," + getLineData(task.getLocalDateTime()) + "\n";
     }
 
 
@@ -161,11 +167,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         String[] line = value.split(",");
         switch (line[1]) {
             case "TASK":
-                return new Task(line[2], line[4], Integer.parseInt(line[0]), Status.NEW, TypeTask.TASK);
+                return new Task(line[2], line[4], Integer.parseInt(line[0]), Status.valueOf(line[3]),
+                        TypeTask.TASK, Long.parseLong(line[5]), LocalDateTime.parse(line[6], formatter));
             case "SUBTASK":
-                return new Subtask(line[2], line[4], Integer.parseInt(line[0]), Status.NEW, Integer.parseInt(line[5]));
+                return new Subtask(line[2], line[4], Integer.parseInt(line[0]), Status.valueOf(line[3]),
+                        Integer.parseInt(line[7]), Long.parseLong(line[5]), LocalDateTime.parse(line[6], formatter));
             case "EPIC":
-                return new Epic(line[2], line[4], Integer.parseInt(line[0]), Status.NEW);
+                return new Epic(line[2], line[4], Integer.parseInt(line[0]), Status.valueOf(line[3]),
+                         Long.parseLong(line[5]), LocalDateTime.parse(line[6], formatter));
             default:
                 return null;
         }
@@ -260,31 +269,46 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 System.out.println(e.getMessage());
             }
         }
-        FileBackedTasksManager fileBackedTaskManager = (FileBackedTasksManager) Managers.getDefault();
-        fileBackedTaskManager = fileBackedTaskManager.loadFromFile(f);
-        fileBackedTaskManager.createTask("первая", "ывпа");
-        fileBackedTaskManager.createTask("вторая", "выап");
-        fileBackedTaskManager.createEpic("третий", "ывапр");
-        fileBackedTaskManager.createSubtask(3, "четвертая", "ывп");
-        fileBackedTaskManager.createSubtask(3, "пятая", "ывп");
-        fileBackedTaskManager.createSubtask(3, "шестая", "пвапр");
-        fileBackedTaskManager.createEpic("седьмой", "фвап");
+        try {
+            FileBackedTasksManager fileBackedTaskManager;
+            fileBackedTaskManager = loadFromFile(f);
+            fileBackedTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2021, 10, 5, 12, 5));
+            fileBackedTaskManager.createTask("вторая", "выап", 50, LocalDateTime.of(2021, 10, 5, 12, 56));
+            fileBackedTaskManager.createEpic("третий", "ывапр", 50, LocalDateTime.of(2020, 10, 5, 12, 5));
+            fileBackedTaskManager.createSubtask(3, "четвертая", "ывп", 50, LocalDateTime.of(2022, 9, 5, 12, 5));
+            fileBackedTaskManager.createSubtask(3, "пятая", "ывп", 50, LocalDateTime.of(2022, 8, 5, 12, 5));
+            fileBackedTaskManager.createSubtask(3, "шестая", "пвапр", 50, LocalDateTime.of(2022, 10, 5, 12, 10));
+            fileBackedTaskManager.createEpic("седьмой", "фвап", 50, LocalDateTime.of(2022, 5, 27, 12, 5));
+            System.out.println(fileBackedTaskManager.getEpic(3).getStartTime());
+            System.out.println(fileBackedTaskManager.getEpic(3).getEndTime());
+            System.out.println(fileBackedTaskManager.getEpic(3).getDuration());
 
-        System.out.println(fileBackedTaskManager.getTask(1));
-        System.out.println(fileBackedTaskManager.getTask(2));
-        System.out.println(fileBackedTaskManager.getEpic(3));
-        System.out.println(fileBackedTaskManager.getSubtask(4));
-        System.out.println(fileBackedTaskManager.getSubtask(5));
-        System.out.println(fileBackedTaskManager.getSubtask(6));
-        System.out.println(fileBackedTaskManager.getEpic(7));
+            System.out.println(fileBackedTaskManager.getEpic(7).getStartTime());
+            System.out.println(fileBackedTaskManager.getEpic(7).getEndTime());
+            System.out.println(fileBackedTaskManager.getEpic(7).getDuration());
 
-        FileBackedTasksManager fileBackedTask = (FileBackedTasksManager) Managers.getDefault();
-        fileBackedTask = fileBackedTask.loadFromFile(f);
-        if (fileBackedTask.equals(fileBackedTaskManager)) {
-            System.out.println("Congratulation");
-        } else {
-            System.out.println("Not equals");
+            System.out.println(fileBackedTaskManager.getTask(1));
+            System.out.println(fileBackedTaskManager.getTask(2));
+            System.out.println(fileBackedTaskManager.getEpic(3));
+            System.out.println(fileBackedTaskManager.getSubtask(4));
+            System.out.println(fileBackedTaskManager.getSubtask(5));
+            System.out.println(fileBackedTaskManager.getSubtask(6));
+            System.out.println(fileBackedTaskManager.getEpic(7));
+            System.out.println(fileBackedTaskManager.getTask(1));
+
+            System.out.println(fileBackedTaskManager.getPrioritizedTasks());
+
+            FileBackedTasksManager fileBackedTask;
+            fileBackedTask = loadFromFile(f);
+            if (fileBackedTask.equals(fileBackedTaskManager)) {
+                System.out.println("Congratulation");
+            } else {
+                System.out.println("Not equals");
+            }
+        } catch (IllegalAccessException | NullPointerException ex) {
+            System.out.println(ex.getMessage());
         }
+
     }
 
     @Override

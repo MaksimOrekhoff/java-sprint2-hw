@@ -4,8 +4,9 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
-import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 
 public interface TaskManager {
 
@@ -29,15 +30,16 @@ public interface TaskManager {
 
     Epic getEpic(int id) throws IOException;
 
-    void createTask(String name, String description);
+    void createTask(String name, String description, long duration, LocalDateTime localDateTime) throws IllegalAccessException;
 
-    void addTaskInList(Task task);
+    void addTaskInList(Task task) throws IllegalAccessException;
 
-    void createSubtask(int epicId, String name, String description);
 
-    void addSubtaskInList(Subtask subtask);
+    void createSubtask(int epicId, String name, String description, long duration, LocalDateTime localDateTime) throws IllegalAccessException;
 
-    void createEpic(String name, String description);
+    void addSubtaskInList(Subtask subtask) throws IllegalAccessException;
+
+    void createEpic(String name, String description, long duration, LocalDateTime localDateTime);
 
     void addEpicInList(Epic epic);
 
@@ -48,12 +50,18 @@ public interface TaskManager {
 
     void deleteSubtask(int id) throws IOException;
 
-    void updateTask(Task task);
+    void updateTask(Task task) throws IllegalAccessException;
 
-    void updateSubtask(Subtask subtask);
+    void updateSubtask(Subtask subtask) throws IllegalAccessException;
 
     void updateEpic(Epic epic);
     void getHistory();
 
 
+    HashMap getEpics();
+    boolean checkEpic(int id);
+
+    HashMap getSubtasks();
+
+    HashMap getTasks();
 }
