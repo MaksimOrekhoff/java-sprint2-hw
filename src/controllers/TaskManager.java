@@ -4,64 +4,53 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 public interface TaskManager {
 
-    void printTask();
+    Set<Task> getPrioritizedTasks();
 
-    void printEpic();
+    List<Task> getTasks();
 
-    void printSubtask();
+    List<Epic> getEpics();
 
-    void printSubtaskEpic(int id);
+    List<Subtask> getSubtasks();
 
     void clearTask();
 
     void clearEpic();
+
     void clearSubtask();
+
     void searchForDeletedSubtasksInEpic();
 
-    Task getTask(int id) throws IOException;
+    Task getTask(int id);
 
-    Subtask getSubtask(int id) throws IOException;
+    Subtask getSubtask(int id);
 
-    Epic getEpic(int id) throws IOException;
+    Epic getEpic(int id);
 
-    void createTask(String name, String description, long duration, LocalDateTime localDateTime) throws IllegalAccessException;
+    void createTask(Task task);
 
-    void addTaskInList(Task task) throws IllegalAccessException;
+    void createSubtask(Subtask subtask);
 
+    void createEpic(Epic epic);
 
-    void createSubtask(int epicId, String name, String description, long duration, LocalDateTime localDateTime) throws IllegalAccessException;
+    void deleteTask(int id);
 
-    void addSubtaskInList(Subtask subtask) throws IllegalAccessException;
+    void deleteEpic(int id);
 
-    void createEpic(String name, String description, long duration, LocalDateTime localDateTime);
+    void deleteSubtask(int id);
 
-    void addEpicInList(Epic epic);
+    void updateTask(Task task);
 
-
-    void deleteTask(int id) throws IOException;
-
-    void deleteEpic(int id) throws IOException;
-
-    void deleteSubtask(int id) throws IOException;
-
-    void updateTask(Task task) throws IllegalAccessException;
-
-    void updateSubtask(Subtask subtask) throws IllegalAccessException;
+    void updateSubtask(Subtask subtask);
 
     void updateEpic(Epic epic);
-    void getHistory();
 
-
-    HashMap getEpics();
     boolean checkEpic(int id);
 
-    HashMap getSubtasks();
-
-    HashMap getTasks();
+    boolean conditionIntersection(LocalDateTime start1, LocalDateTime end1, LocalDateTime start2, LocalDateTime end2);
 }

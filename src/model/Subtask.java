@@ -1,6 +1,5 @@
 package model;
 
-import controllers.Status;
 import controllers.TypeTask;
 
 import java.time.LocalDateTime;
@@ -13,8 +12,6 @@ public class Subtask extends Task {
         super(name, description, identificationNumber, status, TypeTask.SUBTASK, duration, startTime);
         this.connectionWithEpic = connectionWithEpic;
     }
-
-
 
     public int getConnectionWithEpic() {
         return connectionWithEpic;

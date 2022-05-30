@@ -26,16 +26,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private void save() {
         try {
-            FileWriter fileWriter = new FileWriter(file, false);
+            FileWriter fileWriter = new FileWriter(file);
             fileWriter.write("id,type,name,status,description,duration,startTime,epic" + "\n");
 
-            for (Task task : getTasks().values()) {
+            for (Task task : getTasks()) {
                 fileWriter.write(toString(task));
             }
-            for (Epic epic : getEpics().values()) {
+            for (Epic epic : getEpics()) {
                 fileWriter.write(toString(epic));
             }
-            for (Subtask subtask : getSubtasks().values()) {
+            for (Subtask subtask : getSubtasks()) {
                 fileWriter.write(toString(subtask));
             }
 
@@ -49,20 +49,20 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void createTask(String name, String description, long duration, LocalDateTime localDateTime) throws IllegalAccessException {
-        super.createTask(name, description, duration, localDateTime);
+    public void createTask(Task task) {
+        super.createTask(task);
         save();
     }
 
     @Override
-    public void createSubtask(int epicId, String name, String description, long duration, LocalDateTime localDateTime) throws IllegalAccessException {
-        super.createSubtask(epicId, name, description, duration, localDateTime);
+    public void createSubtask(Subtask subtask) {
+        super.createSubtask(subtask);
         save();
     }
 
     @Override
-    public void createEpic(String name, String description, long duration, LocalDateTime localDateTime) {
-        super.createEpic(name, description, duration, localDateTime);
+    public void createEpic(Epic epic) {
+        super.createEpic(epic);
         save();
     }
 
@@ -124,13 +124,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateTask(Task task) throws IllegalAccessException {
+    public void updateTask(Task task) {
         super.updateTask(task);
         save();
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) throws IllegalAccessException {
+    public void updateSubtask(Subtask subtask) {
         super.updateSubtask(subtask);
         save();
     }
@@ -232,15 +232,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 tasksFromFile.put(task.getIdentificationNumber(), task);
                 switch (task.getTypeTask()) {
                     case TASK:
-                        fileBackedTasksManager.getTasks().put(task.getIdentificationNumber(), task);
+                        fileBackedTasksManager.tasks.put(task.getIdentificationNumber(), task);
                         break;
                     case SUBTASK:
                         Subtask subtask = (Subtask) task;
-                        fileBackedTasksManager.getSubtasks().put(subtask.getIdentificationNumber(), subtask);
-                        fileBackedTasksManager.getEpics().get(subtask.getConnectionWithEpic()).getSubtasksEpic().put(subtask.getIdentificationNumber(), subtask);
+                        fileBackedTasksManager.subtasks.put(subtask.getIdentificationNumber(), subtask);
+                        fileBackedTasksManager.epics.get(subtask.getConnectionWithEpic()).getSubtasksEpic().put(subtask.getIdentificationNumber(), subtask);
                         break;
                     case EPIC:
-                        fileBackedTasksManager.getEpics().put(task.getIdentificationNumber(), (Epic) task);
+                        fileBackedTasksManager.epics.put(task.getIdentificationNumber(), (Epic) task);
                         break;
                 }
                 if (max < task.getIdentificationNumber()) {
@@ -262,41 +262,41 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public static void main(String[] args) {
         File f = new File("Task.csv");
+        boolean create;
         if (!f.isFile()) {
             try {
-                f.createNewFile();
+                create = f.createNewFile();
+                System.out.println("Файл создан? " + create);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
         }
-        try {
-            FileBackedTasksManager fileBackedTaskManager;
-            fileBackedTaskManager = loadFromFile(f);
-            fileBackedTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2021, 10, 5, 12, 5));
-            fileBackedTaskManager.createTask("вторая", "выап", 50, LocalDateTime.of(2021, 10, 5, 12, 56));
-            fileBackedTaskManager.createEpic("третий", "ывапр", 50, LocalDateTime.of(2020, 10, 5, 12, 5));
-            fileBackedTaskManager.createSubtask(3, "четвертая", "ывп", 50, LocalDateTime.of(2022, 9, 5, 12, 5));
-            fileBackedTaskManager.createSubtask(3, "пятая", "ывп", 50, LocalDateTime.of(2022, 8, 5, 12, 5));
-            fileBackedTaskManager.createSubtask(3, "шестая", "пвапр", 50, LocalDateTime.of(2022, 10, 5, 12, 10));
-            fileBackedTaskManager.createEpic("седьмой", "фвап", 50, LocalDateTime.of(2022, 5, 27, 12, 5));
-            System.out.println(fileBackedTaskManager.getEpic(3).getStartTime());
-            System.out.println(fileBackedTaskManager.getEpic(3).getEndTime());
-            System.out.println(fileBackedTaskManager.getEpic(3).getDuration());
 
-            System.out.println(fileBackedTaskManager.getEpic(7).getStartTime());
-            System.out.println(fileBackedTaskManager.getEpic(7).getEndTime());
-            System.out.println(fileBackedTaskManager.getEpic(7).getDuration());
+        FileBackedTasksManager fileBackedTaskManager = (FileBackedTasksManager) Managers.getDefault();
+        fileBackedTaskManager = fileBackedTaskManager.loadFromFile(f);
+        Task task1 = new Task("первая", "ывпа", 100, Status.DONE,
+                TypeTask.TASK, 50, LocalDateTime.of(2021, 10, 5, 12, 5));
+        fileBackedTaskManager.createTask(task1);
+        Task task2 = new Task("вторая", "выап", 100, Status.DONE,
+                TypeTask.TASK, 50, LocalDateTime.of(2021, 10, 5, 12, 5));
+        fileBackedTaskManager.createTask(task2);
 
-            System.out.println(fileBackedTaskManager.getTask(1));
-            System.out.println(fileBackedTaskManager.getTask(2));
-            System.out.println(fileBackedTaskManager.getEpic(3));
-            System.out.println(fileBackedTaskManager.getSubtask(4));
-            System.out.println(fileBackedTaskManager.getSubtask(5));
-            System.out.println(fileBackedTaskManager.getSubtask(6));
-            System.out.println(fileBackedTaskManager.getEpic(7));
-            System.out.println(fileBackedTaskManager.getTask(1));
+        Epic epic1 = new Epic("третий", "ывапр", 100, Status.NEW, 50, LocalDateTime.of(2020, 10, 5, 12, 5));
+        fileBackedTaskManager.createEpic(epic1);
 
-            System.out.println(fileBackedTaskManager.getPrioritizedTasks());
+        Subtask subtask1 = new Subtask("четвертая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 9, 5, 12, 5));
+
+        fileBackedTaskManager.createSubtask(subtask1);
+
+        Subtask subtask2 = new Subtask("пятая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 9, 5, 12, 56));
+        fileBackedTaskManager.createSubtask(subtask2);
+
+        Subtask subtask3 = new Subtask("шестая", "пвапр", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 10, 5, 12, 10));
+        fileBackedTaskManager.createSubtask(subtask3);
+
+
+        Epic epic2 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.of(2022, 5, 27, 12, 5));
+        fileBackedTaskManager.createEpic(epic2);
 
             FileBackedTasksManager fileBackedTask;
             fileBackedTask = loadFromFile(f);
@@ -305,9 +305,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             } else {
                 System.out.println("Not equals");
             }
-        } catch (IllegalAccessException | NullPointerException ex) {
-            System.out.println(ex.getMessage());
-        }
+
 
     }
 

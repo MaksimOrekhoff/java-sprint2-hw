@@ -1,6 +1,9 @@
 package controllers;
 
+import model.Epic;
+import model.Subtask;
 import model.Task;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -9,20 +12,33 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class HistoryManagerTest {
+class HistoryManagerTest<T extends TaskManager> {
+
+    HistoryManager historyManager;
+    TaskManager taskManager;
+
+    Task task;
+    Epic epic;
+    Subtask subtask;
+
+    @BeforeEach
+    void init() {
+        historyManager = Managers.getDefaultHistory();
+        task = new Task("первая", "ывпа", 20, Status.NEW, TypeTask.TASK, 50, LocalDateTime.of(2022, 10, 5, 12, 5));
+        epic = new Epic("first", "create first test", 50, Status.NEW, 50, LocalDateTime.of(2022, 11, 5, 12, 5));
+        subtask = new Subtask("четвертая", "ывп", 50, Status.NEW, 2, 50, LocalDateTime.of(2021, 10, 5, 12, 5));
+        taskManager = new InMemoryTaskManager(historyManager);
+    }
 
     @Test
     public void checkHistoryManagerAnVoidTest() {
-        HistoryManager historyManager = Managers.getDefaultHistory();
         assertTrue(historyManager.getHistory().isEmpty());
     }
 
     @Test
-    void checkHistoryManagerAddExistingTaskTest() throws IllegalAccessException {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(historyManager);
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        Task expected = inMemoryTaskManager.getTask(1);
+    void checkHistoryManagerAddExistingTaskTest() {
+        taskManager.createTask(task);
+        Task expected = taskManager.getTask(1);
         Task actual = historyManager.getHistory().get(0);
         int size = historyManager.getHistory().size();
 
@@ -33,24 +49,19 @@ class HistoryManagerTest {
 
     @Test
     void checkHistoryManagerAddNoExistingTaskTest() {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(historyManager);
-        Task expected = inMemoryTaskManager.getTask(1);
+        Task expected = taskManager.getTask(2);
         int size = historyManager.getHistory().size();
 
         assertNull(expected);
         assertEquals(size, historyManager.getHistory().size());
-
     }
 
     @Test
-    void checkHistoryManagerExistingListTaskGetHistoryTest() throws IllegalAccessException {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(historyManager);
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        inMemoryTaskManager.createTask("вторая", "выап", 50, LocalDateTime.of(2021, 10, 5, 12, 56));
+    void checkHistoryManagerExistingListTaskGetHistoryTest() {
+        taskManager.createTask(task);
+        taskManager.createEpic(epic);
 
-        List<Task> expected = List.of(inMemoryTaskManager.getTask(1), inMemoryTaskManager.getTask(2));
+        List<Task> expected = List.of(taskManager.getTask(1), taskManager.getEpic(2));
         int size = historyManager.getHistory().size();
         List<Task> actual = historyManager.getHistory();
 
@@ -60,11 +71,8 @@ class HistoryManagerTest {
 
     @Test
     void checkHistoryManagerNotExistingListTaskGetHistoryTest() {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(historyManager);
-
         List<Task> expected = new ArrayList<>();
-        expected.add(inMemoryTaskManager.getTask(1));
+        expected.add(taskManager.getTask(1));
         int size = historyManager.getHistory().size();
         List<Task> actual = historyManager.getHistory();
 
@@ -73,40 +81,34 @@ class HistoryManagerTest {
     }
 
     @Test
-    void checkHistoryManagerRemoveNotExistingTaskTest() throws IllegalAccessException {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(historyManager);
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-
-        List<Task> expected = List.of(inMemoryTaskManager.getTask(1));
+    void checkHistoryManagerRemoveNotExistingTaskTest() {
+        taskManager.createTask(task);
+        List<Task> expected = List.of(taskManager.getTask(1));
         int size = historyManager.getHistory().size();
         List<Task> actual = historyManager.getHistory();
 
         assertEquals(expected, actual);
         assertEquals(size, historyManager.getHistory().size());
 
-        inMemoryTaskManager.deleteTask(2);
+        taskManager.deleteTask(2);
 
-        expected = List.of(inMemoryTaskManager.getTask(1));
+        expected = List.of(taskManager.getTask(1));
         size = historyManager.getHistory().size();
         actual = historyManager.getHistory();
 
         assertEquals(expected, actual);
         assertEquals(size, historyManager.getHistory().size());
-
     }
 
     @Test
-    void checkHistoryManagerRemoveAverageTaskGetHistoryTest() throws IllegalAccessException {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(historyManager);
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        inMemoryTaskManager.createTask("вторая", "выап", 50, LocalDateTime.of(2021, 10, 5, 12, 56));
-        inMemoryTaskManager.createTask("третий", "ывапр", 50, LocalDateTime.of(2020, 10, 5, 12, 5));
+    void checkHistoryManagerRemoveAverageTaskGetHistoryTest() {
+        taskManager.createTask(task);
+        taskManager.createEpic(epic);
+        taskManager.createSubtask(subtask);
 
-        Task task1 = inMemoryTaskManager.getTask(1);
-        Task task2 = inMemoryTaskManager.getTask(2);
-        Task task3 = inMemoryTaskManager.getTask(3);
+        Epic task1 = taskManager.getEpic(2);
+        Task task2 = taskManager.getTask(1);
+        Subtask task3 = taskManager.getSubtask(3);
 
         List<Task> expected = List.of(task1, task2, task3);
         List<Task> actual = historyManager.getHistory();
@@ -119,7 +121,7 @@ class HistoryManagerTest {
         int size = historyManager.getHistory().size();
         assertEquals(size, historyManager.getHistory().size());
 
-        inMemoryTaskManager.deleteTask(2);
+        taskManager.deleteTask(1);
 
         expected = List.of(task1, task3);
         actual = historyManager.getHistory();
@@ -133,16 +135,14 @@ class HistoryManagerTest {
     }
 
     @Test
-    void checkHistoryManagerRemoveFirstTaskGetHistoryTest() throws IllegalAccessException {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(historyManager);
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        inMemoryTaskManager.createTask("вторая", "выап", 50, LocalDateTime.of(2021, 10, 5, 12, 56));
-        inMemoryTaskManager.createTask("третий", "ывапр", 50, LocalDateTime.of(2020, 10, 5, 12, 5));
+    void checkHistoryManagerRemoveFirstTaskGetHistoryTest() {
+        taskManager.createTask(task);
+        taskManager.createEpic(epic);
+        taskManager.createSubtask(subtask);
 
-        Task task1 = inMemoryTaskManager.getTask(1);
-        Task task2 = inMemoryTaskManager.getTask(2);
-        Task task3 = inMemoryTaskManager.getTask(3);
+        Task task1 = taskManager.getTask(1);
+        Epic task2 = taskManager.getEpic(2);
+        Subtask task3 = taskManager.getSubtask(3);
 
         List<Task> expected = List.of(task1, task2, task3);
         List<Task> actual = historyManager.getHistory();
@@ -155,7 +155,7 @@ class HistoryManagerTest {
         int size = historyManager.getHistory().size();
         assertEquals(size, historyManager.getHistory().size());
 
-        inMemoryTaskManager.deleteTask(1);
+        taskManager.deleteTask(1);
 
         expected = List.of(task2, task3);
         actual = historyManager.getHistory();
@@ -169,16 +169,14 @@ class HistoryManagerTest {
     }
 
     @Test
-    void checkHistoryManagerRemoveLastTaskGetHistoryTest() throws IllegalAccessException {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(historyManager);
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        inMemoryTaskManager.createTask("вторая", "выап", 50, LocalDateTime.of(2021, 10, 5, 12, 56));
-        inMemoryTaskManager.createTask("третий", "ывапр", 50, LocalDateTime.of(2020, 10, 5, 12, 5));
+    void checkHistoryManagerRemoveLastTaskGetHistoryTest(){
+        taskManager.createTask(task);
+        taskManager.createEpic(epic);
+        taskManager.createSubtask(subtask);
 
-        Task task1 = inMemoryTaskManager.getTask(1);
-        Task task2 = inMemoryTaskManager.getTask(2);
-        Task task3 = inMemoryTaskManager.getTask(3);
+        Task task1 = taskManager.getTask(1);
+        Epic task2 = taskManager.getEpic(2);
+        Subtask task3 = taskManager.getSubtask(3);
 
         List<Task> expected = List.of(task1, task2, task3);
         List<Task> actual = historyManager.getHistory();
@@ -191,7 +189,7 @@ class HistoryManagerTest {
         int size = historyManager.getHistory().size();
         assertEquals(size, historyManager.getHistory().size());
 
-        inMemoryTaskManager.deleteTask(3);
+        taskManager.deleteSubtask(3);
 
         expected = List.of(task1, task2);
         actual = historyManager.getHistory();

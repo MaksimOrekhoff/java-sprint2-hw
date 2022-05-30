@@ -5,306 +5,296 @@ import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TaskManagerTest {
+abstract class TaskManagerTest<T extends TaskManager> {
+    T manager;
+    Task task1;
+    Task task2;
+    Epic epic1;
+    Epic epic2;
+    Subtask subtask1;
+    Subtask subtask2;
+
+    void init() {
+        task1 = new Task("первая", "ывпа", 20, Status.NEW, TypeTask.TASK, 50, LocalDateTime.of(2022, 10, 5, 12, 5));
+        task2 = new Task("вторая", "выап", 50, Status.NEW, TypeTask.TASK, 50, LocalDateTime.of(2021, 10, 5, 12, 56));
+        epic1 = new Epic("first", "create first test", 50, Status.NEW, 50, LocalDateTime.of(2022, 11, 5, 12, 5));
+        epic2 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.of(2022, 5, 27, 12, 5));
+        subtask1 = new Subtask("четвертая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2021, 10, 5, 12, 5));
+        subtask2 = new Subtask("пятая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 10, 5, 12, 56));
+        manager.createTask(task1);
+        manager.createTask(task2);
+        manager.createEpic(epic1);
+        manager.createSubtask(subtask1);
+        manager.createSubtask(subtask2);
+        manager.createEpic(epic2);
+    }
 
     @Test
-    public void checkClearTaskTest() throws IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int expected = inMemoryTaskManager.getTasks().size();
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        int newSize = inMemoryTaskManager.getTasks().size();
-        assertNotEquals(expected, newSize);
-        inMemoryTaskManager.clearTask();
-        assertEquals(expected, inMemoryTaskManager.getTasks().size());
+    public void checkClearTaskTest() {
+        manager.clearTask();
+        assertEquals(0, manager.getTasks().size(), "Список задач пуст");
     }
 
     @Test
     public void checkClearEpicTest() {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int size = inMemoryTaskManager.getEpics().size();
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-
-        assertNotEquals(size, inMemoryTaskManager.getEpics().size());
-        inMemoryTaskManager.clearEpic();
-        assertTrue(inMemoryTaskManager.getEpics().isEmpty());
+        manager.clearEpic();
+        assertEquals(0, manager.getEpics().size(), "Список эпиков пуст");
     }
 
     @Test
-    public void checkEpicForClearSubtaskTest() throws IOException, IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2020, 10, 5, 12, 5));
-        int sizeSubtasks = inMemoryTaskManager.getSubtasks().size();
-        inMemoryTaskManager.createSubtask(1, "четвертая", "ывп", 50, LocalDateTime.of(2021, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "пятая", "ывп", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-
-        assertNotEquals(sizeSubtasks, inMemoryTaskManager.getSubtasks().size());
-        inMemoryTaskManager.clearSubtask();
-        Epic epic = inMemoryTaskManager.getEpic(1);
+    public void checkEpicForClearSubtaskTest() {
+        assertNotEquals(0, manager.getSubtasks().size());
+        manager.clearSubtask();
+        Epic epic = manager.getEpic(3);
+        assertEquals(0, manager.getSubtasks().size());
         assertTrue(epic.getSubtasksEpic().isEmpty());
     }
 
     @Test
-    public void checkClearSubtaskTest() throws IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2020, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "четвертая", "ывп", 50, LocalDateTime.of(2021, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "пятая", "ывп", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertTrue(inMemoryTaskManager.getSubtasks().size() != 0);
-        inMemoryTaskManager.clearSubtask();
-        assertTrue(inMemoryTaskManager.getSubtasks().isEmpty());
+    public void checkClearSubtaskTest() {
+        assertTrue(manager.getSubtasks().size() != 0);
+        manager.clearSubtask();
+        assertTrue(manager.getSubtasks().isEmpty());
     }
 
     @Test
-    public void getAnExistingTaskTest() throws IllegalAccessException, IOException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        Task task = (Task) inMemoryTaskManager.getTasks().get(1);
-        assertEquals(task, inMemoryTaskManager.getTask(1));
+    public void getAnExistingTaskTest() {
+        Task task = manager.getTasks().get(0);
+        assertEquals(task, manager.getTask(1));
     }
 
     @Test
     public void getAnNotExistingTaskTest() {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        assertTrue(inMemoryTaskManager.getTasks().isEmpty());
-        Task task = (Task) inMemoryTaskManager.getTasks().get(1);
+        manager.clearTask();
+        Task task = manager.getTask(4);
         assertNull(task);
     }
 
     @Test
-    public void getAnExistingSubtaskTest() throws IllegalAccessException, IOException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2021, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "четвертая", "ывп", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        Subtask subtask = (Subtask) inMemoryTaskManager.getSubtasks().get(2);
-        assertEquals(subtask, inMemoryTaskManager.getSubtask(2));
+    public void getAnExistingSubtaskTest() {
+
+        Subtask subtask = manager.getSubtask(2);
+        assertEquals(epic1.getSubtasksEpic().get(0), subtask);
     }
 
     @Test
     public void getAnNotExistingSubtaskTest() {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        assertTrue(inMemoryTaskManager.getSubtasks().isEmpty());
-        Subtask subtask = (Subtask) inMemoryTaskManager.getSubtasks().get(1);
+        assertFalse(manager.getSubtasks().isEmpty());
+        Subtask subtask = manager.getSubtask(6);
         assertNull(subtask);
     }
 
     @Test
-    public void getAnExistingEpicTest() throws IOException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        Epic epic = inMemoryTaskManager.getEpic(1);
-        assertEquals(epic, inMemoryTaskManager.getEpics().get(1));
+    public void getAnExistingEpicTest() {
+        Epic epic = manager.getEpic(3);
+        assertEquals(epic, manager.getEpics().get(0));
     }
 
     @Test
-    public void getAnNotExistingEpicTest() throws IOException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        assertTrue(inMemoryTaskManager.getEpics().isEmpty());
-        Epic epic = inMemoryTaskManager.getEpic(1);
+    public void getAnNotExistingEpicTest() {
+        assertFalse(manager.getEpics().isEmpty());
+        Epic epic = manager.getEpic(1);
         assertNull(epic);
     }
 
-
     @Test
-    public void checkCreationTaskTest() throws IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int size = inMemoryTaskManager.getTasks().size();
-        assertTrue(inMemoryTaskManager.getTasks().isEmpty());
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertNotEquals(size, inMemoryTaskManager.getTasks().size());
-        assertNotNull(inMemoryTaskManager.getTasks());
+    public void checkCreationTaskTest() {
+        int size = manager.getTasks().size();
+        Task task3 = new Task("7", "createTask", 54, Status.NEW, TypeTask.TASK, 50, LocalDateTime.now());
+        manager.createTask(task3);
+        assertNotEquals(size, manager.getTasks().size());
     }
 
 
     @Test
-    public void checkCreationSubtaskTest() throws IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        int size = inMemoryTaskManager.getSubtasks().size();
-        inMemoryTaskManager.createSubtask(1, "четвертая", "ывп", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertNotEquals(size, inMemoryTaskManager.getSubtasks().size());
+    public void checkCreationSubtaskTest() {
+        int size = manager.getSubtasks().size();
+        Subtask subtask3 = new Subtask("7", "createTask", 54, Status.NEW, 3, 50, LocalDateTime.now());
+        manager.createSubtask(subtask3);
+        assertNotEquals(size, manager.getSubtasks().size());
     }
 
     @Test
     public void checkCreationEpicWithoutSubtaskTest() {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        Epic epic = (Epic) inMemoryTaskManager.getEpics().get(1);
+        int size = manager.getEpics().size();
+        Epic epic3 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.now());
+        manager.createEpic(epic3);
+        assertNotEquals(size, manager.getEpics().size());
+        assertTrue(epic3.getSubtasksEpic().isEmpty());
+    }
 
-        assertEquals(1, inMemoryTaskManager.getEpics().size());
-        assertTrue(epic.getSubtasksEpic().isEmpty());
+
+    @Test
+    public void checkCreationEpicWithSubtaskTest() {
+        int size = manager.getEpics().size();
+        Epic epic3 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.now());
+        manager.createEpic(epic3);
+        Subtask subtask3 = new Subtask("7", "createTask", 54, Status.NEW, 3, 50, LocalDateTime.now());
+        manager.createSubtask(subtask3);
+
+        assertNotEquals(size, manager.getEpics().size());
+        assertTrue(manager.getEpics().get(2).getSubtasksEpic().isEmpty());
     }
 
     @Test
-    public void checkCreationEpicWithoutSubtaskInvalidIdTest() throws IOException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        Epic epic = inMemoryTaskManager.getEpic(3);
-
-        assertEquals(1, inMemoryTaskManager.getEpics().size());
-        assertNull(epic);
+    public void checkDeleteExistingTaskTest() {
+        int size = manager.getTasks().size();
+        Task expected = manager.getTask(1);
+        manager.deleteTask(1);
+        Task actual = manager.getTask(1);
+        assertNotEquals(expected, actual);
+        assertNotEquals(size, manager.getTasks().size());
     }
 
     @Test
-    public void checkCreationEpicWithSubtaskTest() throws IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2020, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "четвертая", "ывп", 50, LocalDateTime.of(2021, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "пятая", "ывп", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        Epic epic = (Epic) inMemoryTaskManager.getEpics().get(1);
+    public void checkDeleteNotExistingTaskTest() {
+        int size = manager.getTasks().size();
 
-        assertEquals(1, inMemoryTaskManager.getEpics().size());
-        assertFalse(epic.getSubtasksEpic().isEmpty());
+        manager.deleteTask(4);
+        assertEquals(size, manager.getTasks().size());
     }
 
     @Test
-    public void checkDeleteExistingTaskTest() throws IOException, IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int size = inMemoryTaskManager.getTasks().size();
+    public void checkDeleteEpicValidIdTest() {
+        int index = manager.getEpics().get(0).getIdentificationNumber();
+        int size = manager.getEpics().size();
+        Epic epic = manager.getEpic(index);
+        manager.deleteEpic(index);
 
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertNotEquals(size, inMemoryTaskManager.getTasks().size());
-        inMemoryTaskManager.deleteTask(1);
-        assertEquals(size, inMemoryTaskManager.getSubtasks().size());
+        assertNotEquals(epic, manager.getEpic(index));
+        assertNotEquals(size, manager.getEpics().size());
     }
 
     @Test
-    public void checkDeleteNotExistingTaskTest() throws IOException, IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int size = inMemoryTaskManager.getTasks().size();
+    public void checkDeleteEpicInvalidIdTest() {
+        int index = manager.getEpics().get(1).getIdentificationNumber();
+        int size = manager.getEpics().size();
+        Epic epic = manager.getEpic(index);
+        manager.deleteEpic(2);
 
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertNotEquals(size, inMemoryTaskManager.getTasks().size());
-        inMemoryTaskManager.deleteTask(2);
-        assertNotEquals(size, inMemoryTaskManager.getTasks().size());
+        assertEquals(epic, manager.getEpic(index));
+        assertEquals(size, manager.getEpics().size());
     }
 
     @Test
-    public void checkDeleteEpicValidIdTest() throws IOException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int index = 1;
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        int size = inMemoryTaskManager.getEpics().size();
-        Epic epic = inMemoryTaskManager.getEpic(index);
-        inMemoryTaskManager.deleteEpic(index);
+    public void checkDeleteExistingSubtaskTest() {
+        int index = manager.getSubtasks().get(1).getIdentificationNumber();
+        int size = manager.getSubtasks().size();
+        Subtask subtask = manager.getSubtask(index);
+        manager.deleteSubtask(5);
 
-        assertNotEquals(epic, inMemoryTaskManager.getEpic(index));
-        assertNotEquals(size, inMemoryTaskManager.getEpics().size());
+        assertNotEquals(subtask, manager.getSubtask(index));
+        assertNotEquals(size, manager.getSubtasks().size());
     }
 
     @Test
-    public void checkDeleteEpicInvalidIdTest() throws IOException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int index = 2;
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        int size = inMemoryTaskManager.getEpics().size();
-        Epic epic = inMemoryTaskManager.getEpic(index);
-        inMemoryTaskManager.deleteEpic(2);
+    public void checkDeleteNotExistingSubtaskTest() {
+        int index = manager.getSubtasks().get(1).getIdentificationNumber();
+        int size = manager.getSubtasks().size();
+        Subtask subtask = manager.getSubtask(index);
+        manager.deleteSubtask(1);
 
-        assertEquals(epic, inMemoryTaskManager.getEpic(index));
-        assertEquals(size, inMemoryTaskManager.getEpics().size());
+        assertEquals(subtask, manager.getSubtask(index));
+        assertEquals(size, manager.getSubtasks().size());
     }
 
     @Test
-    public void checkDeleteExistingSubtaskTest() throws IOException, IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int size = inMemoryTaskManager.getSubtasks().size();
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "четвертая", "ывп", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertNotEquals(size, inMemoryTaskManager.getSubtasks().size());
-        inMemoryTaskManager.deleteSubtask(2);
-        assertEquals(size, inMemoryTaskManager.getSubtasks().size());
-    }
-
-    @Test
-    public void checkDeleteNotExistingSubtaskTest() throws IOException, IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int size = inMemoryTaskManager.getSubtasks().size();
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "четвертая", "ывп", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertNotEquals(size, inMemoryTaskManager.getSubtasks().size());
-        inMemoryTaskManager.deleteSubtask(3);
-        assertNotEquals(size, inMemoryTaskManager.getSubtasks().size());
-    }
-
-    @Test
-    public void checkUpdateTaskTest() throws IllegalAccessException, IOException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        Task task = (Task) inMemoryTaskManager.getTasks().get(1);
+    public void checkUpdateTaskTest() {
+       Task task =  manager.getTasks().get(1);
         String expected = task.getName();
         task.setName("Update");
-        inMemoryTaskManager.updateTask(task);
+        manager.updateTask(task);
         assertNotEquals(expected, task.getName());
+        assertEquals(task, manager.getTask(2));
     }
 
     @Test
-    public void checkUpdateSubtaskTest() throws IOException, IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2021, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "четвертая", "ывп", 50, LocalDateTime.of(2023, 10, 5, 12, 5));
-        Enum expected = inMemoryTaskManager.getSubtask(2).getStatus();
-        Subtask actual = (Subtask) inMemoryTaskManager.getSubtasks().get(2);
+    public void checkUpdateSubtaskTest() {
+        Enum expected = manager.getSubtask(5).getStatus();
+        Subtask actual =  manager.getSubtasks().get(0);
         actual.setStatus(Status.DONE);
-        inMemoryTaskManager.updateSubtask(actual);
+        manager.updateSubtask(actual);
         assertNotEquals(expected, actual.getStatus());
     }
 
     @Test
-    public void checkUpdateEpicInMapTest() throws IOException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        String expected = inMemoryTaskManager.getEpic(1).getName();
-        Epic actual = inMemoryTaskManager.getEpic(1);
+    public void checkUpdateEpicInMapTest() {
+       String expected = manager.getEpic(3).getName();
+        Epic actual = manager.getEpic(3);
         actual.setName("update");
-        inMemoryTaskManager.updateEpic(actual);
+        manager.updateEpic(actual);
         assertNotEquals(expected, actual.getName());
     }
 
 
-
     @Test
     void checkGetEpicsMapTest() {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int size = inMemoryTaskManager.getEpics().size();
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertNotEquals(size, inMemoryTaskManager.getEpics().size());
+        Epic expected = manager.getEpics().get(0);
+        Epic actual = manager.getEpic(3);
+
+        assertEquals(expected, actual);
     }
 
     @Test
     public void checkExistingEpicInMapTest() {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertTrue(inMemoryTaskManager.checkEpic(1));
+
+        assertTrue(manager.checkEpic(3));
     }
 
     @Test
     public void checkNotExistingEpicInMapTest() {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2021, 10, 5, 12, 5));
-        inMemoryTaskManager.createEpic("седьмой", "фвап", 50, LocalDateTime.of(2022, 5, 27, 12, 5));
-        assertFalse(inMemoryTaskManager.checkEpic(4));
+       assertFalse(manager.checkEpic(4));
     }
 
     @Test
-    void checkGetSubtasksMapTest() throws IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int size = inMemoryTaskManager.getSubtasks().size();
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2021, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "четвертая", "ывп", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertNotEquals(size, inMemoryTaskManager.getSubtasks().size());
+    void checkGetSubtasksMapTest() {
+        Subtask expected = manager.getSubtask(5);
+        Subtask actual = manager.getSubtasks().get(1);
+        assertEquals(expected, actual);
     }
 
     @Test
-    void checkGetTasksMapTest() throws IllegalAccessException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        int size = inMemoryTaskManager.getTasks().size();
-        inMemoryTaskManager.createTask("первая", "ывпа", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        assertNotEquals(size, inMemoryTaskManager.getTasks().size());
+    void checkGetTasksMapTest() {
+        Task expected = manager.getTask(1);
+        Task actual = manager.getTasks().get(0);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void checkTasksIntersectionTest() {
+        LocalDateTime start1 = LocalDateTime.of(2022, 10, 5, 12, 0);
+        LocalDateTime start2 = LocalDateTime.of(2022, 10, 5, 12, 5);
+        LocalDateTime end1 = start1.plusMinutes(5);
+        LocalDateTime end2 = start2.plusMinutes(5);
+        boolean intersection = manager.conditionIntersection(start1, end1, start2, end2);
+        assertTrue(intersection); //end1 = start2
+
+        start2 = LocalDateTime.of(2022, 10, 5, 12, 4);
+        intersection = manager.conditionIntersection(start1, end1, start2, end2);
+        assertTrue(intersection); //start1 < start2 < end2 < end1
+
+        start2 = start1;
+        assertTrue(manager.conditionIntersection(start1, end1, start2, end2));
+
+        end1 = end2;
+        assertTrue(manager.conditionIntersection(start1, end1, start2, end2));
+
+        end2 = start2;
+        assertTrue(manager.conditionIntersection(start1, end1, start2, end2));
+
+        start1 = LocalDateTime.of(2022, 10, 5, 12, 2);
+        start2 = LocalDateTime.of(2022, 10, 5, 12, 0);
+        end2 = start2.plusMinutes(10);
+        end1 = start1.plusMinutes(3);
+        assertTrue(manager.conditionIntersection(start1, end1, start2, end2));
+
+        start2 = LocalDateTime.of(2022, 10, 5, 12, 0).plusMinutes(7);
+        end2 = start2.plusMinutes(1);
+        assertFalse(manager.conditionIntersection(start1, end1, start2, end2));
     }
 
 

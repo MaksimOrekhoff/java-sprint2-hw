@@ -3,40 +3,20 @@ package model;
 import controllers.*;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubtaskTest {
     @Test
-    public void checkAddSubtaskInvalidEpicIdTest() throws IllegalAccessException {
+    public void checkAddSubtaskInvalidEpicIdTest() {
         TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2021, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(2, "четвертая", "ывп", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
+        Epic epic = new Epic("first", "create first test", 50, Status.NEW, 50, LocalDateTime.of(2022, 11, 5, 12, 5));
+        Subtask subtask = new Subtask("четвертая", "ывп", 50, Status.NEW, 2, 50, LocalDateTime.of(2021, 10, 5, 12, 5));
+        inMemoryTaskManager.createEpic(epic);
+        inMemoryTaskManager.createSubtask(subtask);
         int size = inMemoryTaskManager.getSubtasks().size();
         assertEquals(0, size);
-    }
-
-    @Test
-    public void checkToStringSubtaskTest() throws IllegalAccessException, IOException {
-        TaskManager inMemoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        inMemoryTaskManager.createEpic("first", "create first test", 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        inMemoryTaskManager.createSubtask(1, "четвертая", "ывп", 50, LocalDateTime.of(2023, 10, 5, 12, 5));
-        String expected = "model.Subtask{" +
-                "typeTask=" + inMemoryTaskManager.getSubtask(2).getTypeTask() +
-                ", name='" + inMemoryTaskManager.getSubtask(2).getName() +
-                ", description='" + inMemoryTaskManager.getSubtask(2).getDescription() +
-                ", identificationNumber=" + inMemoryTaskManager.getSubtask(2).getIdentificationNumber() +
-                ", status=" + inMemoryTaskManager.getSubtask(2).getStatus() +
-                ", connectionWithEpic=" + inMemoryTaskManager.getSubtask(2).getConnectionWithEpic() +
-                ", duration=" + inMemoryTaskManager.getSubtask(2).getDuration() +
-                ", startTime=" + inMemoryTaskManager.getSubtask(2).getStartTime() +
-                '}';
-
-        String line = inMemoryTaskManager.getSubtask(2).toString();
-
-        assertEquals(expected, line);
     }
 
 }
