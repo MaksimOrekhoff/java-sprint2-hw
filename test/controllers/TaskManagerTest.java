@@ -6,6 +6,8 @@ import model.Task;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,18 +21,78 @@ abstract class TaskManagerTest<T extends TaskManager> {
     Subtask subtask2;
 
     void init() {
-        task1 = new Task("первая", "ывпа", 20, Status.NEW, TypeTask.TASK, 50, LocalDateTime.of(2022, 10, 5, 12, 5));
-        task2 = new Task("вторая", "выап", 50, Status.NEW, TypeTask.TASK, 50, LocalDateTime.of(2021, 10, 5, 12, 56));
-        epic1 = new Epic("first", "create first test", 50, Status.NEW, 50, LocalDateTime.of(2022, 11, 5, 12, 5));
-        epic2 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.of(2022, 5, 27, 12, 5));
-        subtask1 = new Subtask("четвертая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2021, 10, 5, 12, 5));
-        subtask2 = new Subtask("пятая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 10, 5, 12, 56));
+        task1 = new Task("первая", "ывпа", 20, Status.NEW, TypeTask.TASK, 50, LocalDateTime.of(2022, 6, 1, 1, 5));
+        task2 = new Task("вторая", "выап", 50, Status.NEW, TypeTask.TASK, 50, LocalDateTime.of(2022, 6, 1, 2, 5));
+        epic1 = new Epic("first", "create first test", 50, Status.NEW, 50, LocalDateTime.of(2022, 6, 1, 3, 5));
+        epic2 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.of(2022, 6, 1, 4, 5));
+        subtask1 = new Subtask("четвертая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 6, 1, 5, 5));
+        subtask2 = new Subtask("пятая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 6, 1, 6, 5));
         manager.createTask(task1);
         manager.createTask(task2);
         manager.createEpic(epic1);
         manager.createSubtask(subtask1);
         manager.createSubtask(subtask2);
         manager.createEpic(epic2);
+    }
+
+    @Test
+    public void checkGetHistoryAtGetTaskTest() {
+        Task task = manager.getTask(1);
+        Epic epic = manager.getEpic(3);
+        Subtask subtask = manager.getSubtask(5);
+        List<Task> expected = List.of(task, epic, subtask);
+        List<Task> actual = manager.getHistoryManagers();
+        assertEquals(expected, actual, "Список задач совпадает");
+        assertEquals(expected.size(), actual.size());
+    }
+
+    @Test
+    public void checkGetHistoryAtDeleteTaskTest() {
+        Task task = manager.getTask(1);
+        Epic epic = manager.getEpic(3);
+        Subtask subtask = manager.getSubtask(5);
+        List<Task> expected = List.of(task, epic, subtask);
+        int size = manager.getHistoryManagers().size();
+        List<Task> actual = manager.getHistoryManagers();
+
+        assertEquals(expected, actual, "Список задач совпадает");
+        assertEquals(expected.size(), actual.size(), "размер совпадает");
+
+        manager.deleteTask(1);
+        actual = manager.getHistoryManagers();
+        assertNotEquals(expected, actual, "список не совпадает");
+        assertNotEquals(size, manager.getHistoryManagers().size());
+    }
+
+    @Test
+    public void checkGetPrioritizedTasksAtAddTaskTest() {
+        List<Task> expected = List.of(manager.getTask(1), manager.getTask(2), manager.getSubtask(4), manager.getSubtask(5));
+        List<Task> actual = new ArrayList<>(manager.getPrioritizedTasks());
+
+        assertEquals(expected, actual, "Список задач совпадает");
+        assertEquals(expected.size(), actual.size(), "размер совпадает");
+    }
+
+    @Test
+    public void checkGetPrioritizedTasksAtDeleteTaskTest() {
+        manager.deleteTask(1);
+        List<Task> expected = List.of(manager.getTask(2), manager.getSubtask(4), manager.getSubtask(5));
+        List<Task> actual = new ArrayList<>(manager.getPrioritizedTasks());
+
+        assertEquals(expected, actual, "Список задач совпадает");
+        assertEquals(expected.size(), actual.size(), "размер совпадает");
+    }
+
+    @Test
+    public void checkGetPrioritizedTasksAtUpdateStartTimeTaskTest() {
+        Task updateTask = new Task("первая", "ывпа", 1, Status.NEW, TypeTask.TASK, 50, LocalDateTime.of(2022, 6, 1, 7, 5));
+        manager.updateTask(updateTask);
+
+        List<Task> expected = List.of(manager.getTask(2), manager.getSubtask(4), manager.getSubtask(5), manager.getTask(1));
+        List<Task> actual = new ArrayList<>(manager.getPrioritizedTasks());
+
+        assertEquals(expected, actual, "Список задач совпадает");
+        assertEquals(expected.size(), actual.size(), "размер совпадает");
     }
 
     @Test
@@ -204,7 +266,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void checkUpdateTaskTest() {
-       Task task =  manager.getTasks().get(1);
+        Task task = manager.getTasks().get(1);
         String expected = task.getName();
         task.setName("Update");
         manager.updateTask(task);
@@ -215,7 +277,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     public void checkUpdateSubtaskTest() {
         Enum expected = manager.getSubtask(5).getStatus();
-        Subtask actual =  manager.getSubtasks().get(0);
+        Subtask actual = manager.getSubtasks().get(0);
         actual.setStatus(Status.DONE);
         manager.updateSubtask(actual);
         assertNotEquals(expected, actual.getStatus());
@@ -223,7 +285,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void checkUpdateEpicInMapTest() {
-       String expected = manager.getEpic(3).getName();
+        String expected = manager.getEpic(3).getName();
         Epic actual = manager.getEpic(3);
         actual.setName("update");
         manager.updateEpic(actual);
@@ -247,7 +309,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void checkNotExistingEpicInMapTest() {
-       assertFalse(manager.checkEpic(4));
+        assertFalse(manager.checkEpic(4));
     }
 
     @Test

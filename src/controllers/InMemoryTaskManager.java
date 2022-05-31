@@ -15,6 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager historyManager;
     private int id;
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
     private final Set<Task> prioritizedTasks = new TreeSet<>(Comparator.nullsLast(Comparator.comparing(Task::getLocalDateTime)));
 
     public InMemoryTaskManager(HistoryManager historyManager) {
@@ -45,9 +46,7 @@ public class InMemoryTaskManager implements TaskManager {
         this.id = id;
     }
 
-    public List<Task> getHistoryManagers() {
-        return historyManager.getHistory();
-    }
+
 
     public int getId() {
         return ++id;
@@ -58,15 +57,16 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Пересечение задач во времени. Задача не добавлена.");
             return;
         }
-        if (task.getStartTime() == null && prioritizedTasks.size() == 0) {
-            task.setStartTime(LocalDateTime.of(2023, 5, 28, 23, 59));
-            prioritizedTasks.add(task);
-        } else if (task.getStartTime() == null) {
-            List<Task> tasks = new ArrayList<>(prioritizedTasks);
-            task.setStartTime(tasks.get(tasks.size() - 1).getEndTime().plusHours(12));
+        if (task.getStartTime() == null) {
+            task.setStartTime(LocalDateTime.MAX.minusMinutes(task.getDuration()));
             prioritizedTasks.add(task);
         }
         prioritizedTasks.add(task);
+    }
+
+    @Override
+    public List<Task> getHistoryManagers() {
+        return historyManager.getHistory();
     }
 
     @Override
@@ -132,7 +132,6 @@ public class InMemoryTaskManager implements TaskManager {
         return null;
     }
 
-
     @Override
     public void createTask(Task task) {
         Task newTask = new Task(task.getName(), task.getDescription(), getId(),
@@ -152,7 +151,7 @@ public class InMemoryTaskManager implements TaskManager {
             int size = prioritizedTasks.size();
             Subtask newSubtask = new Subtask(subtask.getName(), subtask.getDescription(), idSubtask, Status.NEW, subtask.getConnectionWithEpic(),
                     subtask.getDuration(), subtask.getLocalDateTime());
-            addTaskInPrioritizedTasks(subtask);
+            addTaskInPrioritizedTasks(newSubtask);
             if (size != prioritizedTasks.size()) {
                 subtasks.put(newSubtask.getIdentificationNumber(), newSubtask);
                 Subtask subTask = subtasks.get(idSubtask);
@@ -164,7 +163,6 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
     }
-
 
     @Override
     public void createEpic(Epic epic) {
@@ -220,12 +218,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         if (tasks.containsKey(task.getIdentificationNumber())) {
-            System.out.println("Такая задача существует. Обновляем данные");
             addTaskInPrioritizedTasks(task);
-            if (prioritizedTasks.contains(task)) {
+            ArrayList<Task> tasks1 = new ArrayList<>(prioritizedTasks);
+            if (tasks1.contains(task)) {
                 tasks.put(task.getIdentificationNumber(), task);
+                System.out.println(task);
             }
-            System.out.println(task);
         } else {
             System.out.println("Такой задачи не существует.");
         }
@@ -234,12 +232,13 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
         if (subtasks.containsKey(subtask.getIdentificationNumber())) {
-            System.out.println("Такая подзадача существует. Обновляем данные");
             addTaskInPrioritizedTasks(subtask);
-            if (prioritizedTasks.contains(subtask)) {
+            ArrayList<Task> tasks = new ArrayList<>(prioritizedTasks);
+            if (tasks.contains(subtask)) {
                 Epic epic = epics.get(subtask.getConnectionWithEpic());
                 epic.getSubtasksEpic().put(subtask.getIdentificationNumber(), subtask);
                 updateEpic(epic);
+                System.out.println(subtask);
             }
         } else {
             System.out.println("Такой подзадачи не существует.");
@@ -248,6 +247,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateEpic(Epic epic) {
+        epic.getStartTime();
         if (checkEpic(epic.getIdentificationNumber())) {
             if (epic.getSubtasksEpic().size() == 0) {
                 epics.put(epic.getIdentificationNumber(), epic);
@@ -318,6 +318,7 @@ public class InMemoryTaskManager implements TaskManager {
                         return true;
                     }
                 }
+                prioritizedTasks.remove(task);
                 return false;
             }
             if (conditionIntersection(startTime, endTime, task.getStartTime(), task.getEndTime())) {

@@ -78,15 +78,13 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
                 System.out.println(e.getMessage());
             }
         }
-        FileBackedTasksManager fileBackedTaskManager = new FileBackedTasksManager(Managers.getDefaultHistory());
-        Epic epic = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.now());
+        FileBackedTasksManager fileBackedTaskManager = loadFromFile(f);
+        Epic epic4 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.now());
 
-        fileBackedTaskManager.createEpic(epic);
+        fileBackedTaskManager.createEpic(epic4);
 
-        FileBackedTasksManager loadTask;
-        loadTask = loadFromFile(f);
+        FileBackedTasksManager loadTask  = loadFromFile(f);
         assertEquals(fileBackedTaskManager, loadTask);
-        assertTrue(loadTask.getSubtasks().isEmpty());
-        assertTrue(loadTask.getEpic(0).getSubtasksEpic().isEmpty());
+        assertTrue(loadTask.getEpics().get(2).getSubtasksEpic().isEmpty());
     }
 }

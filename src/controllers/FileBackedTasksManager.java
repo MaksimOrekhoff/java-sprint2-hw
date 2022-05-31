@@ -253,6 +253,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 List<Integer> ids = historyFromString(history);
                 fileBackedTasksManager.restoreHistory(ids, tasksFromFile);
             }
+            for (Task task : fileBackedTasksManager.getTasks()) {
+                fileBackedTasksManager.getPrioritizedTasks().add(task);
+            }
+            for (Task task : fileBackedTasksManager.getSubtasks()) {
+                fileBackedTasksManager.getPrioritizedTasks().add(task);
+
+            }
             return fileBackedTasksManager;
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка чтения файла.");
@@ -272,31 +279,42 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             }
         }
 
-        FileBackedTasksManager fileBackedTaskManager = (FileBackedTasksManager) Managers.getDefault();
-        fileBackedTaskManager = fileBackedTaskManager.loadFromFile(f);
+        FileBackedTasksManager fileBackedTaskManager = loadFromFile(f);
         Task task1 = new Task("первая", "ывпа", 100, Status.DONE,
-                TypeTask.TASK, 50, LocalDateTime.of(2021, 10, 5, 12, 5));
+                TypeTask.TASK, 50, null);
         fileBackedTaskManager.createTask(task1);
+//        Task task1 = new Task("первая", "ывпа", 100, Status.DONE,
+//                TypeTask.TASK, 50, LocalDateTime.of(2021, 10, 5, 12, 5));
+//        fileBackedTaskManager.createTask(task1);
         Task task2 = new Task("вторая", "выап", 100, Status.DONE,
-                TypeTask.TASK, 50, LocalDateTime.of(2021, 10, 5, 12, 5));
+                TypeTask.TASK, 50, LocalDateTime.of(2021, 10, 5, 12, 56));
         fileBackedTaskManager.createTask(task2);
+//
+//        Epic epic1 = new Epic("третий", "ывапр", 100, Status.NEW, 50, LocalDateTime.of(2020, 10, 5, 12, 5));
+//        fileBackedTaskManager.createEpic(epic1);
+//
+//        Subtask subtask1 = new Subtask("четвертая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 9, 5, 12, 5));
+//
+//        fileBackedTaskManager.createSubtask(subtask1);
+//
+//        Subtask subtask2 = new Subtask("пятая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 9, 5, 12, 56));
+//        fileBackedTaskManager.createSubtask(subtask2);
+//
+//        System.out.println(fileBackedTaskManager.getEpic(3).getStartTime());
+//        fileBackedTaskManager.deleteSubtask(4);
+//        System.out.println(fileBackedTaskManager.getEpic(3).getStartTime());
+//
+//        Subtask subtask3 = new Subtask("шестая", "пвапр", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 10, 5, 12, 10));
+//        fileBackedTaskManager.createSubtask(subtask3);
+//
+//
+//        Epic epic2 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.of(2022, 5, 27, 12, 5));
+//        fileBackedTaskManager.createEpic(epic2);
 
-        Epic epic1 = new Epic("третий", "ывапр", 100, Status.NEW, 50, LocalDateTime.of(2020, 10, 5, 12, 5));
-        fileBackedTaskManager.createEpic(epic1);
-
-        Subtask subtask1 = new Subtask("четвертая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 9, 5, 12, 5));
-
-        fileBackedTaskManager.createSubtask(subtask1);
-
-        Subtask subtask2 = new Subtask("пятая", "ывп", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 9, 5, 12, 56));
-        fileBackedTaskManager.createSubtask(subtask2);
-
-        Subtask subtask3 = new Subtask("шестая", "пвапр", 50, Status.NEW, 3, 50, LocalDateTime.of(2022, 10, 5, 12, 10));
-        fileBackedTaskManager.createSubtask(subtask3);
 
 
-        Epic epic2 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.of(2022, 5, 27, 12, 5));
-        fileBackedTaskManager.createEpic(epic2);
+
+        System.out.println(fileBackedTaskManager.getPrioritizedTasks());
 
             FileBackedTasksManager fileBackedTask;
             fileBackedTask = loadFromFile(f);

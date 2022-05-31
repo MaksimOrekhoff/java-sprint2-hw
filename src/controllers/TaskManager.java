@@ -10,6 +10,7 @@ import java.util.Set;
 
 public interface TaskManager {
 
+    List<Task> getHistoryManagers();
     Set<Task> getPrioritizedTasks();
 
     List<Task> getTasks();
