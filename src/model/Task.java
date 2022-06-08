@@ -1,9 +1,9 @@
 package model;
 
+import controllers.Status;
 import controllers.TypeTask;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.Objects;
 
 public class Task {
@@ -12,11 +12,11 @@ public class Task {
     private String name;
     private final String description;
     private final int identificationNumber;
-    private Enum status;
+    private Status status;
     private long duration;
     private LocalDateTime startTime;
 
-    public Task(String name, String description, int identificationNumber, Enum status, TypeTask typeTask, long duration, LocalDateTime startTime) {
+    public Task(String name, String description, int identificationNumber, Status status, TypeTask typeTask, long duration, LocalDateTime startTime) {
         this.name = name;
         this.description = description;
         this.identificationNumber = identificationNumber;
@@ -24,6 +24,7 @@ public class Task {
         this.typeTask = typeTask;
         this.duration = duration;
         this.startTime = startTime;
+
     }
 
     public LocalDateTime getStartTime() {
@@ -54,7 +55,7 @@ public class Task {
         this.name = name;
     }
 
-    public Enum getStatus() {
+    public Status getStatus() {
         return status;
     }
 
@@ -77,7 +78,7 @@ public class Task {
     }
 
 
-    public void setStatus(Enum status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 

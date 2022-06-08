@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private File file;
 
@@ -26,6 +25,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private void save() {
         try {
+            file = new File("Task.csv");
+            boolean create;
+            if (!file.isFile()) {
+                try {
+                    create = file.createNewFile();
+                    System.out.println("Файл создан? " + create);
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write("id,type,name,status,description,duration,startTime,epic" + "\n");
 
@@ -310,7 +319,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 //
 //        Epic epic2 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.of(2022, 5, 27, 12, 5));
 //        fileBackedTaskManager.createEpic(epic2);
-
 
 
 

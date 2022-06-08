@@ -1,5 +1,6 @@
 package model;
 
+import controllers.Status;
 import controllers.TypeTask;
 
 import java.time.LocalDateTime;
@@ -10,7 +11,7 @@ public class Epic extends Task {
     private HashMap<Integer, Subtask> subtasksEpic = new HashMap<>();
     private LocalDateTime endTime = null;
 
-    public Epic(String name, String description, int identificationNumber, Enum status, long duration, LocalDateTime startTime) {
+    public Epic(String name, String description, int identificationNumber, Status status, long duration, LocalDateTime startTime) {
         super(name, description, identificationNumber, status, TypeTask.EPIC, duration, startTime);
 
     }

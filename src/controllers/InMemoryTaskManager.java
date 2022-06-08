@@ -9,10 +9,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
-    protected final HashMap<Integer, Task> tasks = new HashMap<>();
-    protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    protected final HashMap<Integer, Epic> epics = new HashMap<>();
-    private final HistoryManager historyManager;
+    protected HashMap<Integer, Task> tasks = new HashMap<>();
+    protected HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    protected HashMap<Integer, Epic> epics = new HashMap<>();
+    protected HistoryManager historyManager;
     private int id;
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
@@ -41,6 +41,8 @@ public class InMemoryTaskManager implements TaskManager {
     public HistoryManager getHistoryManager() {
         return historyManager;
     }
+
+
 
     protected void setId(int id) {
         this.id = id;
@@ -134,6 +136,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void createTask(Task task) {
+
         Task newTask = new Task(task.getName(), task.getDescription(), getId(),
                 task.getStatus(), TypeTask.TASK, task.getDuration(), task.getStartTime());
         int size = prioritizedTasks.size();

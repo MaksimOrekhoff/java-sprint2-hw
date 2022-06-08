@@ -1,16 +1,19 @@
 package controllers;
 
+import java.io.IOException;
 
 public class Managers {
-    private final static InMemoryHistoryManager inMemoryHistoryManager = new InMemoryHistoryManager();
-    private final static InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(inMemoryHistoryManager);
 
     public static HistoryManager getDefaultHistory() {
-        return inMemoryHistoryManager;
+        return new InMemoryHistoryManager();
     }
 
     public static TaskManager getDefault() {
-        return new FileBackedTasksManager(inMemoryHistoryManager);
+        return new FileBackedTasksManager(getDefaultHistory());
+    }
+
+    public static TaskManager getDefaults(HistoryManager historyManager, String url) throws IOException, InterruptedException {
+        return new HttpTaskManager(historyManager, url);
     }
 
 }
