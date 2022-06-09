@@ -7,7 +7,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class KVTaskClient {
-    private final String token;
+
+
+
+
+    private String token;
     private final String url;
     private final static HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
     private final static HttpClient client = HttpClient.newHttpClient();
@@ -22,6 +26,12 @@ public class KVTaskClient {
         System.out.println("Код ответа: " + response.statusCode());
         this.token = response.body();
         this.url = url;
+    }
+    public String getToken() {
+        return token;
+    }
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public void put(String key, String json) throws IOException, InterruptedException {

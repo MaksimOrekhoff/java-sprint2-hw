@@ -8,21 +8,16 @@ import java.net.http.HttpResponse;
 
 public class HttpTaskQuery {
     private static final String link = "http://localhost:8080/tasks/";
-    // HTTP-клиент с настройками по умолчанию
     private static final HttpClient client = HttpClient.newHttpClient();
-
-    // получаем стандартный обработчик тела запроса с конвертацией содержимого в строку
     private static final HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
 
     public void postTask(String typeTask, String bodyQuery) throws IOException, InterruptedException {
         URI uri = URI.create(link + typeTask);
-
-        // создаём объект, описывающий HTTP-запрос
-        HttpRequest request = HttpRequest.newBuilder() // получаем экземпляр билдера
-                .POST(HttpRequest.BodyPublishers.ofString(bodyQuery))    // указываем HTTP-метод запроса
-                .uri(uri) // указываем адрес ресурса
-                .version(HttpClient.Version.HTTP_1_1) // указываем версию протокола
-                .header("Accept", "text/html") // указываем заголовок Accept
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(bodyQuery))
+                .uri(uri)
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "text/html")
                 .build(); // заканчиваем настройку и создаём ("строим") http-запрос
        // отправляем запрос и получаем ответ от сервера
         HttpResponse<String> response = client.send(request, handler);

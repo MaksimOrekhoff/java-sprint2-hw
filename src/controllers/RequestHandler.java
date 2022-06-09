@@ -120,6 +120,7 @@ public class RequestHandler {
                         if (httpTaskManager.getSubtask(newSubtask.getIdentificationNumber()) != null) {
                             httpTaskManager.updateTask(newSubtask);
                             httpTaskManager.save(httpTaskManager.key[1], gson.toJson(httpTaskManager.subtasks));
+                            httpTaskManager.save(httpTaskManager.key[2], gson.toJson(httpTaskManager.epics));
                             response = "Подадача обновлена.";
                         } else {
                             httpTaskManager.createSubtask(newSubtask);

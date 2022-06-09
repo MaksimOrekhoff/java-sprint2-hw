@@ -13,27 +13,25 @@ import model.Task;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class HttpTaskManager extends FileBackedTasksManager {
+
+
     private final KVTaskClient kvTaskClient;
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
     Map<Integer, Task> tasksFromSever = new HashMap<>();
     private static final Gson gson = gsonBuilder
-            // .setPrettyPrinting()
-            //.serializeNulls()
             .registerTypeAdapter(LocalDateTime.class, new HttpTaskManager.LocalDateAdapter())
             .create();
     public String[] key = {"newKeyTask", "newKeySubtask", "newKeyEpic", "keyHistory"};
-    String url;
 
     public HttpTaskManager(HistoryManager historyManager, String url) throws IOException, InterruptedException {
         super(historyManager);
         this.kvTaskClient = new KVTaskClient(url);
-        this.url = url;
+    }
+    public KVTaskClient getKvTaskClient() {
+        return kvTaskClient;
     }
 
     public void load(String key) throws IOException, InterruptedException {
@@ -71,10 +69,13 @@ public class HttpTaskManager extends FileBackedTasksManager {
 
         if (key.equals(this.key[3])) {
             String s = gson.fromJson(text, String.class);
-            List<Integer> id = historyFromString(s);
-            if (!(tasksFromSever.isEmpty())) {
-                this.historyManager = restoreHistory(id, tasksFromSever);
+            if (!(s == null)) {
+                List<Integer> id = historyFromString(s);
+                if (!(tasksFromSever.isEmpty())) {
+                    this.historyManager = restoreHistory(id, tasksFromSever);
+                }
             }
+
 
         }
 
@@ -110,14 +111,17 @@ public class HttpTaskManager extends FileBackedTasksManager {
 
     public static List<Integer> historyFromString(String value) {
         List<Integer> idTasks = new ArrayList<>();
-        String[] ids = value.split("");
-        for (String id : ids) {
-            if (id.isBlank()) {
-                continue;
+        if (!(value == null)) {
+            String[] ids = value.split("");
+            for (String id : ids) {
+                if (id.isBlank()) {
+                    continue;
+                }
+                idTasks.add(Integer.parseInt(id.trim()));
             }
-            idTasks.add(Integer.parseInt(id.trim()));
+            return idTasks;
         }
-        return idTasks;
+        return null;
     }
 
     private HistoryManager restoreHistory(List<Integer> ids, Map<Integer, Task> tasks) {
@@ -138,5 +142,34 @@ public class HttpTaskManager extends FileBackedTasksManager {
             }
         }
         return historyManager;
+    }
+
+    @Override
+    public String toString() {
+        return "HttpTaskManager{" +
+                "kvTaskClient=" + kvTaskClient +
+                ", tasksFromSever=" + tasksFromSever +
+                ", key=" + Arrays.toString(key) +
+                ", tasks=" + tasks +
+                ", subtasks=" + subtasks +
+                ", epics=" + epics +
+                ", historyManager=" + historyManager +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        HttpTaskManager that = (HttpTaskManager) o;
+        return Objects.equals(kvTaskClient, that.kvTaskClient) && Objects.equals(tasksFromSever, that.tasksFromSever) && Arrays.equals(key, that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(super.hashCode(), kvTaskClient, tasksFromSever);
+        result = 31 * result + Arrays.hashCode(key);
+        return result;
     }
 }
