@@ -18,11 +18,8 @@ public class HttpTaskQuery {
                 .uri(uri)
                 .version(HttpClient.Version.HTTP_1_1)
                 .header("Accept", "text/html")
-                .build(); // заканчиваем настройку и создаём ("строим") http-запрос
-       // отправляем запрос и получаем ответ от сервера
+                .build();
         HttpResponse<String> response = client.send(request, handler);
-
-        // выводим код состояния и тело ответа
         System.out.println("Код ответа: " + response.statusCode());
         System.out.println("Тело ответа: " + response.body());
     }
@@ -31,31 +28,22 @@ public class HttpTaskQuery {
         System.out.println(typeTask);
         URI uri = URI.create(link + typeTask);
 
-        // создаём объект, описывающий HTTP-запрос
-        HttpRequest request = HttpRequest.newBuilder() // получаем экземпляр билдера
-                .GET()    // указываем HTTP-метод запроса
-                .uri(uri) // указываем адрес ресурса
-                .build(); // заканчиваем настройку и создаём ("строим") http-запрос
-        // отправляем запрос и получаем ответ от сервера
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
         HttpResponse<String> response = client.send(request, handler);
-
-        // выводим код состояния и тело ответа
         System.out.println("Код ответа: " + response.statusCode());
         System.out.println("Тело ответа: " + response.body());
     }
     public void getTaskOnId(String typeTask, int id) throws IOException, InterruptedException {
         System.out.println(id);
         URI uri = URI.create(link + typeTask + "/?id=" +  id);
-
-        // создаём объект, описывающий HTTP-запрос
-        HttpRequest request = HttpRequest.newBuilder() // получаем экземпляр билдера
-                .GET()    // указываем HTTP-метод запроса
-                .uri(uri) // указываем адрес ресурса
-                .build(); // заканчиваем настройку и создаём ("строим") http-запрос
-        // отправляем запрос и получаем ответ от сервера
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
         HttpResponse<String> response = client.send(request, handler);
-
-        // выводим код состояния и тело ответа
         System.out.println("Код ответа: " + response.statusCode());
         System.out.println("Тело ответа: " + response.body());
     }
@@ -63,19 +51,12 @@ public class HttpTaskQuery {
     public void deleteTaskOnId(String typeTask, int id) throws IOException, InterruptedException {
         System.out.println(id);
         URI uri = URI.create(link + typeTask + "/?id=" +  id);
-
-        // создаём объект, описывающий HTTP-запрос
-        HttpRequest request = HttpRequest.newBuilder() // получаем экземпляр билдера
-                .DELETE()    // указываем HTTP-метод запроса
-                .uri(uri) // указываем адрес ресурса
-                .build(); // заканчиваем настройку и создаём ("строим") http-запрос
-        // отправляем запрос и получаем ответ от сервера
+        HttpRequest request = HttpRequest.newBuilder()
+                .DELETE()
+                .uri(uri)
+                .build();
         HttpResponse<String> response = client.send(request, handler);
-
-        // выводим код состояния и тело ответа
         System.out.println("Код ответа: " + response.statusCode());
         System.out.println("Тело ответа: " + response.body());
     }
-
-
 }

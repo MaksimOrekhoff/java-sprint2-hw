@@ -24,23 +24,6 @@ public class RequestHandler {
     private static final Gson gson = gsonBuilder
             .registerTypeAdapter(LocalDateTime.class, new RequestHandler.LocalDateAdapter())
             .create();
-
-
-
-//    public void createTask() {
-//        Task task1 = new Task("первая", "ывпа", 100, Status.DONE,
-//                TypeTask.TASK, 50, null);
-//        fileBackedTasksManager.createTask(task1);
-//
-//        Epic epic1 = new Epic("третий", "ывапр", 100, Status.NEW, 50, LocalDateTime.of(2023, 10, 5, 12, 5, 0, 0));
-//        fileBackedTasksManager.createEpic(epic1);
-//
-//        Subtask subtask1 = new Subtask("четвертая", "ывп", 50, Status.NEW, 2, 50, LocalDateTime.of(2022, 9, 5, 12, 5, 0, 0));
-//
-//        fileBackedTasksManager.createSubtask(subtask1);
-//    }
-
-
     public Response response(HttpExchange httpExchange, HttpTaskManager httpTaskManager) throws IOException, InterruptedException {
 
         String response = "";
