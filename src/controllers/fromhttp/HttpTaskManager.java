@@ -80,7 +80,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
             if (key.equals(this.keys[3])) {
                 String s = gson.fromJson(text, String.class);
                 if (!(s == null)) {
-                    List<Integer> id = historyFromString(s);
+                    List<Integer> id = historyIdFromString(s);
                     if (!(tasksFromSever.isEmpty())) {
                         this.historyManager = restoreHistory(id, tasksFromSever);
                     }
@@ -106,7 +106,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
 
     }
 
-    public static List<Integer> historyFromString(String value) {
+    public List<Integer> historyIdFromString(String value) {
         List<Integer> idTasks = new ArrayList<>();
         if (!(value == null)) {
             String[] ids = value.split("");
@@ -141,7 +141,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
         return historyManager;
     }
 
-    public static String toStringHistory(HistoryManager manager) {
+    public String toStringHistory(HistoryManager manager) {
         StringBuilder history = new StringBuilder();
         for (Task task : manager.getHistory()) {
             history.append(task.getIdentificationNumber());

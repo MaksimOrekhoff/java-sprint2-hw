@@ -10,17 +10,21 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
-    private final int PORT;
+    private static final int PORT = 8080;
     private final RequestHandler requestHandler = new RequestHandler();
     private final HttpTaskManager httpTaskManager;
     private final String path;
 
     private HttpServer httpServer;
 
-    public HttpTaskServer(int PORT, HttpTaskManager httpTaskManager, String path) {
-        this.PORT = PORT;
+    public HttpTaskServer(HttpTaskManager httpTaskManager, String path) {
         this.httpTaskManager = httpTaskManager;
         this.path = path;
+        try {
+            createServer();
+        } catch (IOException e) {
+            throw new ManagerSaveException("Сервер не создан.");
+        }
     }
 
     public HttpTaskManager getHttpTaskManager() {

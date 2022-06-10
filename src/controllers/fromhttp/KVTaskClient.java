@@ -11,10 +11,10 @@ import java.net.http.HttpResponse;
 public class KVTaskClient {
     private String token;
     private String url;
-    private final static HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
-    private final static HttpClient client = HttpClient.newHttpClient();
 
     public KVTaskClient(String url) {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         URI uri = URI.create(url + "register");
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
@@ -42,6 +42,8 @@ public class KVTaskClient {
     }
 
     public void put(String key, String json) {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         URI uri = URI.create(url + "save/" + key + "?API_TOKEN=" + token);
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(json))
@@ -59,6 +61,8 @@ public class KVTaskClient {
     }
 
     public String load(String key) {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         URI uri = URI.create(url + "load/" + key + "?API_TOKEN=" + token);
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
@@ -67,12 +71,14 @@ public class KVTaskClient {
         HttpResponse<String> response;
         try {
             response = client.send(request, handler);
+            if (response.statusCode() != 200) {
+                System.out.println("Данные не получены.");
+                return null;
+            }
+            return response.body();
         } catch (IOException | InterruptedException e) {
             throw new ManagerSaveException("Запрос не обработан.");
         }
-        if (response.statusCode() != 200) {
-            System.out.println("Данные не получены.");
-        }
-        return response.body();
+
     }
 }

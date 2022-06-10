@@ -3,7 +3,6 @@ package controllers.fromhttp;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import controllers.generallogicfortasks.Managers;
-import controllers.history.HistoryManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -40,7 +39,7 @@ public class RequestHandler {
                             response = gson.toJson(httpTaskManager.getTasks());
                             break;
                         case "subtask":
-                            response = gson.toJson(httpTaskManager.getSubtasks());//получение Subtasks по id реализовано ниже
+                            response = gson.toJson(httpTaskManager.getSubtasks());
                             break;
                         case "epic":
                             response = gson.toJson(httpTaskManager.getEpics());
@@ -52,23 +51,35 @@ public class RequestHandler {
                             int idGetTask = Integer.parseInt(typeTask.substring(typeTask.length() - 1));
                             switch (arrayPath[arrayPath.length - 2]) {
                                 case "task":
+                                    StringBuilder history = new StringBuilder();
                                     response = gson.toJson(httpTaskManager.getTask(idGetTask));
-                                    httpTaskManager.getKvTaskClient().put(httpTaskManager.keys[3], gson.toJson(toStringHistory(httpTaskManager.getHistoryManager())));
+                                    for (Task task : httpTaskManager.getHistoryManagers()) {
+                                        history.append(task.getIdentificationNumber());
+                                    }
+                                    httpTaskManager.getKvTaskClient().put(httpTaskManager.keys[3], gson.toJson(history.toString()));
                                     httpTaskManager.save();
                                     break;
                                 case "subtask":
+                                    history = new StringBuilder();
                                     response = gson.toJson(httpTaskManager.getSubtask(idGetTask));
-                                    httpTaskManager.getKvTaskClient().put(httpTaskManager.keys[3], gson.toJson(toStringHistory(httpTaskManager.historyManager)));
+                                    for (Task task : httpTaskManager.getHistoryManagers()) {
+                                        history.append(task.getIdentificationNumber());
+                                    }
+                                    httpTaskManager.getKvTaskClient().put(httpTaskManager.keys[3], gson.toJson(history.toString()));
                                     httpTaskManager.save();
                                     break;
                                 case "epic":
+                                    history = new StringBuilder();
                                     String subtask = arrayPath[arrayPath.length - 3];
                                     if (subtask.equals("subtask")) {
                                         response = gson.toJson(httpTaskManager.getEpic(idGetTask).getSubtasksEpic());
                                         break;
                                     }
                                     response = gson.toJson(httpTaskManager.getEpic(idGetTask));
-                                    httpTaskManager.getKvTaskClient().put(httpTaskManager.keys[3], gson.toJson(toStringHistory(httpTaskManager.historyManager)));
+                                    for (Task task : httpTaskManager.getHistoryManagers()) {
+                                        history.append(task.getIdentificationNumber());
+                                    }
+                                    httpTaskManager.getKvTaskClient().put(httpTaskManager.keys[3], gson.toJson(history.toString()));
                                     httpTaskManager.save();
                                     break;
                             }
@@ -180,13 +191,5 @@ public class RequestHandler {
                 System.out.println("Неверный запрос.");
         }
         return new Response(response, code);
-    }
-
-    public static String toStringHistory(HistoryManager manager) {
-        StringBuilder history = new StringBuilder();
-        for (Task task : manager.getHistory()) {
-            history.append(task.getIdentificationNumber());
-        }
-        return history.toString();
     }
 }
