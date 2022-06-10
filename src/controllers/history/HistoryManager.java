@@ -1,4 +1,4 @@
-package controllers;
+package controllers.history;
 
 import model.Task;
 

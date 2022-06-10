@@ -1,5 +1,9 @@
 package controllers;
 
+import controllers.enumeratedtype.Status;
+import controllers.enumeratedtype.TypeTask;
+import controllers.generallogicfortasks.TaskManager;
+import controllers.history.HistoryManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -12,7 +16,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected HashMap<Integer, Task> tasks = new HashMap<>();
     protected HashMap<Integer, Subtask> subtasks = new HashMap<>();
     protected HashMap<Integer, Epic> epics = new HashMap<>();
-    protected HistoryManager historyManager;
+    public HistoryManager historyManager;
     private int id;
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
@@ -42,13 +46,9 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
-
-
     protected void setId(int id) {
         this.id = id;
     }
-
-
 
     public int getId() {
         return ++id;

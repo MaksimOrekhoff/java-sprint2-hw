@@ -1,4 +1,4 @@
-package controllers;
+package controllers.enumeratedtype;
 
 public enum TypeTask {
     TASK,

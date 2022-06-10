@@ -1,4 +1,4 @@
-package controllers;
+package controllers.generallogicfortasks;
 
 import model.Epic;
 import model.Subtask;

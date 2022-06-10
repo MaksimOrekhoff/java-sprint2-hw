@@ -1,5 +1,11 @@
-package controllers;
+package controllers.fromfile;
 
+import controllers.InMemoryTaskManager;
+import exep.ManagerSaveException;
+import controllers.enumeratedtype.Status;
+import controllers.enumeratedtype.TypeTask;
+import controllers.generallogicfortasks.Managers;
+import controllers.history.HistoryManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -23,7 +29,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         this.file = file;
     }
 
-    private void save() {
+    public void save() {
         try {
             file = new File("Task.csv");
             boolean create;
@@ -163,7 +169,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 + task.getDuration() + "," + getLineData(task.getLocalDateTime()) + "\n";
     }
 
-
     public static String toString(HistoryManager manager) {
         StringBuilder history = new StringBuilder();
         for (Task task : manager.getHistory()) {
@@ -219,7 +224,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             }
         }
     }
-
 
     public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fileBackedTasksManager = (FileBackedTasksManager) Managers.getDefault();
@@ -320,10 +324,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 //        Epic epic2 = new Epic("седьмой", "фвап", 50, Status.NEW, 50, LocalDateTime.of(2022, 5, 27, 12, 5));
 //        fileBackedTaskManager.createEpic(epic2);
 
-
-
         System.out.println(fileBackedTaskManager.getPrioritizedTasks());
-
             FileBackedTasksManager fileBackedTask;
             fileBackedTask = loadFromFile(f);
             if (fileBackedTask.equals(fileBackedTaskManager)) {
@@ -331,8 +332,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             } else {
                 System.out.println("Not equals");
             }
-
-
     }
 
     @Override

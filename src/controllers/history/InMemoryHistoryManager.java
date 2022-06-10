@@ -1,4 +1,4 @@
-package controllers;
+package controllers.history;
 
 import model.Task;
 
@@ -33,7 +33,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    public class CustomLinkedList {
+    public static class CustomLinkedList {
         private Node head;
         private Node tail;
 

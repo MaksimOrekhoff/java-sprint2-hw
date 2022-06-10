@@ -1,5 +1,9 @@
 package controllers;
 
+import controllers.enumeratedtype.Status;
+import controllers.enumeratedtype.TypeTask;
+import controllers.history.HistoryManager;
+import controllers.history.InMemoryHistoryManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;

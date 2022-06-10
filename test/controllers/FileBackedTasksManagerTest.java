@@ -1,6 +1,9 @@
 package controllers;
 
 
+import controllers.enumeratedtype.Status;
+import controllers.fromfile.FileBackedTasksManager;
+import controllers.generallogicfortasks.Managers;
 import model.Epic;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,14 +12,14 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-import static controllers.FileBackedTasksManager.loadFromFile;
+import static controllers.fromfile.FileBackedTasksManager.loadFromFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
     @BeforeEach
     @Override
-    void init() {
+    public void init() {
         File f = new File("Task.csv");
         if (!f.isFile()) {
             try {

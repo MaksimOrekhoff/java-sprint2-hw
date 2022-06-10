@@ -1,7 +1,7 @@
 package model;
 
-import controllers.Status;
-import controllers.TypeTask;
+import controllers.enumeratedtype.Status;
+import controllers.enumeratedtype.TypeTask;
 
 import java.time.LocalDateTime;
 import java.util.*;

@@ -1,4 +1,4 @@
-package controllers;
+package controllers.fromhttp;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -26,7 +26,6 @@ public class KVServer {
     }
 
     private void load(HttpExchange h) throws IOException {
-        // TODO Добавьте получение значения по ключу
         try {
             System.out.println("\n/load");
             if (!hasAuth(h)) {
@@ -130,8 +129,6 @@ public class KVServer {
         byte[] resp = text.getBytes(UTF_8);
         h.getResponseHeaders().add("Content-Type", "application/json");
         h.sendResponseHeaders(200, resp.length);
-
-       // h.getResponseBody().write(resp);
         try (OutputStream os = h.getResponseBody()) {
             os.write(text.getBytes());
         }
@@ -139,5 +136,9 @@ public class KVServer {
 
     public static void main(String[] args) throws IOException {
         new KVServer().start();
+    }
+
+    public void stopServer(int delay) {
+        server.stop(1);
     }
 }

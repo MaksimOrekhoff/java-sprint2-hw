@@ -1,5 +1,8 @@
 package controllers;
 
+import controllers.enumeratedtype.Status;
+import controllers.enumeratedtype.TypeTask;
+import controllers.generallogicfortasks.TaskManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -11,7 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-abstract class TaskManagerTest<T extends TaskManager> {
+public abstract class TaskManagerTest<T extends TaskManager> {
     T manager;
     Task task1;
     Task task2;
@@ -20,7 +23,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
     Subtask subtask1;
     Subtask subtask2;
 
-    void init() {
+
+    protected void init() {
         task1 = new Task("первая", "ывпа", 20, Status.NEW, TypeTask.TASK, 50, LocalDateTime.of(2022, 6, 1, 1, 5));
         task2 = new Task("вторая", "выап", 50, Status.NEW, TypeTask.TASK, 50, LocalDateTime.of(2022, 6, 1, 2, 5));
         epic1 = new Epic("first", "create first test", 50, Status.NEW, 50, LocalDateTime.of(2022, 6, 1, 3, 5));

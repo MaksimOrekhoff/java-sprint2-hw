@@ -1,9 +1,12 @@
 package model;
 
 import controllers.*;
+import controllers.enumeratedtype.Status;
+import controllers.enumeratedtype.TypeTask;
+import controllers.generallogicfortasks.Managers;
+import controllers.generallogicfortasks.TaskManager;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;

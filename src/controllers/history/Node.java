@@ -1,9 +1,8 @@
-package controllers;
+package controllers.history;
 
 import model.Task;
 
 public class Node {
-
     public Task data;
     public Node next;
     public Node prev;
@@ -13,5 +12,4 @@ public class Node {
         this.next = next;
         this.prev = prev;
     }
-
 }
